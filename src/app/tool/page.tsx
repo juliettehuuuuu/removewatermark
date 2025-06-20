@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { ImageUploader } from '@/components/ImageUploader'
 import { ResultPreview } from '@/components/ResultPreview'
 import { ToolButtons } from '@/components/ToolButtons'
@@ -29,6 +29,14 @@ export default function ToolPage() {
     user: session?.user?.email 
   })
 
+  // 使用useEffect处理登录检查，避免在渲染时调用router
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      // 只在未认证状态下重定向，避免重复重定向
+      console.log('🔍 用户未登录，但允许浏览页面')
+    }
+  }, [status, router])
+
   // 如果session还在加载中，显示加载状态
   if (status === "loading") {
     return (
@@ -43,19 +51,24 @@ export default function ToolPage() {
     )
   }
 
-  // 如果没有session，重定向到登录页
-  if (!session) {
-    router.replace('/auth/signin?callbackUrl=/tool')
-    return null
-  }
-
   function handleImageChange(file: File | null) {
+    // 检查登录状态
+    if (!session) {
+      router.push('/auth/signin?callbackUrl=/tool')
+      return
+    }
     setOriginalFile(file)
     setResultUrl(null)
     setError(null)
   }
 
   async function handleAction(action: 'remove' | 'enhance') {
+    // 检查登录状态
+    if (!session) {
+      router.push('/auth/signin?callbackUrl=/tool')
+      return
+    }
+    
     if (!originalFile) {
       setError("Please upload an image first.")
       return
