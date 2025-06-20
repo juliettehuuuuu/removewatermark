@@ -40,6 +40,10 @@ export function SignUpContent() {
         setIsLoading(false)
         return
       }
+      
+      // 添加短暂延迟，确保Supabase用户创建完成
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       // 2. 注册成功后自动登录并跳转
       const callbackUrl = searchParams.get('callbackUrl') || '/tool'
       await signIn("credentials", {
