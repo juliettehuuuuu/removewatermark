@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
       email,
       password,
       options: {
-        data: { name: name || email }
+        data: { name: name || email },
+        emailRedirectTo: `${process.env.NEXTAUTH_URL}/auth/callback`
       }
     })
     
@@ -29,6 +30,22 @@ export async function POST(req: NextRequest) {
     }
     
     console.log('✅ 用户注册成功:', data.user?.id)
+    
+    // 手动确认邮箱（开发环境）
+    if (data.user && !data.user.email_confirmed_at) {
+      console.log('🔧 开发环境：手动确认邮箱')
+      const { error: confirmError } = await supabase.auth.admin.updateUserById(
+        data.user.id,
+        { email_confirm: true }
+      )
+      
+      if (confirmError) {
+        console.error('❌ 邮箱确认失败:', confirmError.message)
+      } else {
+        console.log('✅ 邮箱确认成功')
+      }
+    }
+    
     return NextResponse.json({ user: data.user })
   } catch (e: any) {
     console.error('❌ 注册异常:', e.message)

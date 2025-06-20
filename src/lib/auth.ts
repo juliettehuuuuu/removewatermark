@@ -68,6 +68,40 @@ if (process.env.NEXT_PUBLIC_AUTH_CREDENTIALS_ENABLED === "true") {
           })
 
           if (error) {
+            // 如果是邮箱未验证错误，在开发环境下允许登录
+            if (error.message === 'Email not confirmed' && process.env.NODE_ENV === 'development') {
+              console.log('🔧 开发环境：允许未验证邮箱的用户登录')
+              // 尝试手动确认邮箱
+              try {
+                const adminSupabase = createClient(
+                  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                  process.env.SUPABASE_SERVICE_ROLE_KEY!
+                )
+                
+                // 先查询用户ID
+                const { data: userData } = await adminSupabase.auth.admin.listUsers()
+                const targetUser = userData.users.find(u => u.email === credentials.email)
+                
+                if (targetUser) {
+                  const { error: confirmError } = await adminSupabase.auth.admin.updateUserById(
+                    targetUser.id,
+                    { email_confirm: true }
+                  )
+                  
+                  if (!confirmError) {
+                    console.log('✅ 邮箱确认成功，允许登录')
+                    return {
+                      id: targetUser.id,
+                      email: credentials.email,
+                      name: targetUser.user_metadata?.name || credentials.email,
+                    }
+                  }
+                }
+              } catch (confirmErr) {
+                console.error('❌ 邮箱确认失败:', confirmErr)
+              }
+            }
+            
             console.log('❌ 登录失败:', error.message)
             return null
           }
