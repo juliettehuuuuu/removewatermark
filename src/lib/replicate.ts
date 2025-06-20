@@ -20,7 +20,19 @@ const models = {
 
 // 通用AI图片处理函数
 export async function callReplicateAPI(action: 'remove' | 'enhance', file: File): Promise<string> {
-  if (!REPLICATE_API_TOKEN) throw new Error('Replicate API token not set')
+  if (!REPLICATE_API_TOKEN) {
+    console.log('⚠️ Replicate API token not set, using mock processing for development')
+    // 开发环境：模拟处理，返回原图
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        // 返回原图的 data URL
+        resolve(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+  
   const model = models[action]
   if (!model) throw new Error('Unknown action')
 

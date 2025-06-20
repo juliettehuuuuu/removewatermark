@@ -4,9 +4,9 @@ import { ImageUploader } from '@/components/ImageUploader'
 import { ResultPreview } from '@/components/ResultPreview'
 import { ToolButtons } from '@/components/ToolButtons'
 import { DownloadButton } from '@/components/DownloadButton'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Sparkles, Image as ImageIcon, Upload } from 'lucide-react'
+import { Sparkles, Image as ImageIcon, Upload, LogOut } from 'lucide-react'
 
 // 工具页主页面
 export default function ToolPage() {
@@ -36,6 +36,11 @@ export default function ToolPage() {
       console.log('🔍 用户未登录，但允许浏览页面')
     }
   }, [status, router])
+
+  // 处理退出登录
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: "/" })
+  }
 
   // 如果session还在加载中，显示加载状态
   if (status === "loading") {
@@ -123,7 +128,7 @@ export default function ToolPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 text-slate-800">
       <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -143,6 +148,14 @@ export default function ToolPage() {
                 <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                   {remaining !== null ? remaining : 10} credits left
                 </div>
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center space-x-2 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium"
+                  title="退出登录"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>退出</span>
+                </button>
               </div>
             )}
           </div>
@@ -153,7 +166,7 @@ export default function ToolPage() {
         <div className="w-full max-w-7xl mx-auto">
 
           <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900">
+            <h1 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent animate-gradient">
               AI-Powered Watermark Removal
             </h1>
             <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
@@ -168,7 +181,7 @@ export default function ToolPage() {
           )}
 
           <div className="grid lg:grid-cols-2 gap-6 items-start">
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 space-y-4">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 p-6 space-y-4">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                   <Upload className="w-5 h-5 text-blue-600" />
@@ -178,7 +191,7 @@ export default function ToolPage() {
               <ImageUploader onImageChange={handleImageChange} />
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 space-y-4">
+            <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 p-6 space-y-4">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                   <ImageIcon className="w-5 h-5 text-green-600" />
@@ -189,7 +202,7 @@ export default function ToolPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 mt-6">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 p-6 mt-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="flex-grow">
                   <h3 className="text-lg font-semibold text-slate-900 text-center md:text-left">Choose Your Action</h3>

@@ -4,15 +4,54 @@ import { Download } from 'lucide-react'
 // 下载按钮组件
 export function DownloadButton({ resultUrl }: { resultUrl?: string | null }) {
   // 下载图片
-  function handleDownload() {
+  async function handleDownload() {
     if (!resultUrl) return
     
-    const link = document.createElement('a')
-    link.href = resultUrl
-    link.download = 'processed-image.png'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+    try {
+      // 如果是 data URL，直接下载
+      if (resultUrl.startsWith('data:')) {
+        const link = document.createElement('a')
+        link.href = resultUrl
+        link.download = 'processed-image.png'
+        link.style.display = 'none'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        return
+      }
+      
+      // 如果是外部 URL，先获取图片数据再下载
+      const response = await fetch(resultUrl)
+      if (!response.ok) {
+        throw new Error('Failed to fetch image')
+      }
+      
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      
+      const link = document.createElement('a')
+      link.href = url
+      link.download = 'processed-image.png'
+      link.style.display = 'none'
+      document.body.appendChild(link)
+      link.click()
+      
+      // 清理
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      
+    } catch (error) {
+      console.error('Download failed:', error)
+      // 如果 fetch 失败，尝试直接下载（可能被 CORS 阻止）
+      const link = document.createElement('a')
+      link.href = resultUrl
+      link.download = 'processed-image.png'
+      link.target = '_blank' // 在新标签页打开，避免在当前页面显示
+      link.style.display = 'none'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
   }
 
   return (

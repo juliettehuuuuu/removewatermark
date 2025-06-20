@@ -18,7 +18,9 @@ export function ResultPreview({ resultUrl, isLoading }: { resultUrl?: string | n
           <img 
             src={resultUrl} 
             alt="Processed Result" 
-            className="w-full h-full object-contain rounded-lg" 
+            className="w-full h-full object-contain rounded-lg pointer-events-none" 
+            draggable="false"
+            onContextMenu={(e) => e.preventDefault()} // 禁用右键菜单
           />
           <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-0.5 rounded-full text-xs font-medium flex items-center space-x-1">
             <CheckCircle className="w-3 h-3" />

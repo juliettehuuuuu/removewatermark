@@ -65,7 +65,9 @@ export function ImageUploader({ onImageChange }: { onImageChange?: (file: File |
           <img 
             src={imageUrl} 
             alt="Original" 
-            className="w-full h-64 object-contain rounded-lg bg-slate-50 border border-slate-200" 
+            className="w-full h-64 object-contain rounded-lg bg-slate-50 border border-slate-200 pointer-events-none" 
+            draggable="false"
+            onContextMenu={(e) => e.preventDefault()} // 禁用右键菜单
           />
           <button
             onClick={handleClear}
