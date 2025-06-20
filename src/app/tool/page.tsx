@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { ImageUploader } from '@/components/ImageUploader'
 import { ResultPreview } from '@/components/ResultPreview'
 import { ToolButtons } from '@/components/ToolButtons'
@@ -17,6 +17,10 @@ export default function ToolPage() {
   const { data: session } = useSession()
   const router = useRouter()
   const [remaining, setRemaining] = useState<number | null>(null)
+  const [showFeedback, setShowFeedback] = useState(false)
+  const [feedback, setFeedback] = useState("")
+  const [feedbackStatus, setFeedbackStatus] = useState<string | null>(null)
+  const feedbackRef = useRef<HTMLTextAreaElement>(null)
 
   function handleImageChange(file: File | null) {
     setOriginalFile(file)
@@ -57,6 +61,24 @@ export default function ToolPage() {
       setError(e.message || 'Unknown error occurred')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  async function handleSubmitFeedback(e: React.FormEvent) {
+    e.preventDefault()
+    setFeedbackStatus(null)
+    try {
+      const res = await fetch("/api/send-feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feedback }),
+      })
+      if (!res.ok) throw new Error("提交失败，请稍后再试")
+      setFeedback("")
+      setFeedbackStatus("反馈已成功提交，感谢您的宝贵意见！")
+      setShowFeedback(false)
+    } catch (e) {
+      setFeedbackStatus("提交失败，请稍后再试")
     }
   }
 
@@ -140,6 +162,49 @@ export default function ToolPage() {
                 <DownloadButton resultUrl={resultUrl} />
               </div>
             </div>
+            <div className="flex justify-end mt-4">
+              <button
+                className="px-4 py-2 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white rounded-lg font-semibold shadow hover:from-pink-600 hover:to-yellow-600 transition-all"
+                onClick={() => setShowFeedback(true)}
+              >
+                用户反馈
+              </button>
+            </div>
+            {showFeedback && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                  <h2 className="text-xl font-bold mb-2 text-slate-900">提交反馈</h2>
+                  <form onSubmit={handleSubmitFeedback}>
+                    <textarea
+                      ref={feedbackRef}
+                      className="w-full h-28 border border-slate-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400 text-slate-800"
+                      placeholder="请填写您的建议或遇到的问题..."
+                      value={feedback}
+                      onChange={e => setFeedback(e.target.value)}
+                      required
+                    />
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-semibold hover:bg-slate-300"
+                        onClick={() => setShowFeedback(false)}
+                      >
+                        取消
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+                      >
+                        提交反馈
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+            {feedbackStatus && (
+              <div className="mt-2 text-center text-green-600 font-medium">{feedbackStatus}</div>
+            )}
           </div>
         </div>
       </main>

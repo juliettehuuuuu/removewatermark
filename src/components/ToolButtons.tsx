@@ -1,5 +1,6 @@
+"use client"
 import React from 'react'
-import { Eraser, Sparkles } from 'lucide-react'
+import { Sparkles, Wand2 } from 'lucide-react'
 
 // 工具按钮组件
 export function ToolButtons({ 
@@ -9,33 +10,26 @@ export function ToolButtons({
   onAction: (action: 'remove' | 'enhance') => void,
   disabled?: boolean
 }) {
-  const baseClasses = "flex-1 group relative overflow-hidden text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 shadow-md transform hover:-translate-y-0.5"
-  const disabledClasses = "disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
-
   return (
-    <div className="flex flex-col sm:flex-row gap-3 w-full">
+    <div className="flex flex-col sm:flex-row items-center gap-3">
       {/* 去水印按钮 */}
       <button
         onClick={() => onAction('remove')}
         disabled={disabled}
-        className={`${baseClasses} bg-blue-600 hover:bg-blue-700 ${disabledClasses}`}
+        className="w-full sm:w-auto flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 transition-transform duration-200 ease-in-out shadow-lg"
       >
-        <div className="relative flex items-center justify-center space-x-2">
-          <Eraser className="w-5 h-5" />
-          <span>Remove Watermark</span>
-        </div>
+        <Wand2 className="w-5 h-5 mr-2" />
+        Remove Watermark
       </button>
 
       {/* 增强图片按钮 */}
       <button
         onClick={() => onAction('enhance')}
         disabled={disabled}
-        className={`${baseClasses} bg-green-600 hover:bg-green-700 ${disabledClasses}`}
+        className="w-full sm:w-auto flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 transition-transform duration-200 ease-in-out shadow-lg"
       >
-        <div className="relative flex items-center justify-center space-x-2">
-          <Sparkles className="w-5 h-5" />
-          <span>Enhance Image</span>
-        </div>
+        <Sparkles className="w-5 h-5 mr-2" />
+        Enhance Image
       </button>
     </div>
   )
