@@ -40,18 +40,14 @@ export function SignUpContent() {
         setIsLoading(false)
         return
       }
-      // 2. 注册成功后自动登录
-      const result = await signIn("credentials", {
+      // 2. 注册成功后自动登录并跳转
+      const callbackUrl = searchParams.get('callbackUrl') || '/tool'
+      await signIn("credentials", {
         email,
         password,
-        redirect: false,
+        callbackUrl,
+        redirect: true
       })
-      if (result?.error) {
-        setError("Could not sign in after account creation.")
-      } else {
-        const callbackUrl = searchParams.get('callbackUrl') || '/tool'
-        router.push(callbackUrl)
-      }
     } catch (error: any) {
       setError(error.message || "An unexpected error occurred.")
     } finally {
