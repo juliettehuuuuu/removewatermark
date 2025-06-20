@@ -1,0 +1,52 @@
+# Flux Kontext AI
+
+> Professional AI image generation platform powered by Flux Kontext technology. Create stunning images from text descriptions, edit existing images, and process multiple images with cutting-edge AI technology.
+
+Flux Kontext AI is a Next.js-based platform that provides professional-grade AI image generation services. The platform supports text-to-image generation, image editing, and multi-image processing using advanced Flux AI models. It features a modern web interface, multiple pricing tiers, and comprehensive API documentation.
+
+Key features include:
+- Text-to-image generation with Flux Pro and Max models
+- Image editing and enhancement capabilities
+- Multi-image batch processing
+- Professional quality outputs suitable for commercial use
+- Responsive web interface optimized for all devices
+- Comprehensive API for developers
+
+## Core Features
+- [AI Image Generator](https://fluxkontext.space/generate): Main image generation interface with text-to-image, image editing, and multi-image processing
+- [Pricing Plans](https://fluxkontext.space/pricing): Flexible pricing tiers for different usage needs, from free tier to professional plans
+- [Resources Hub](https://fluxkontext.space/resources): Tutorials, guides, and tools for AI image generation
+- [Platform Features](https://fluxkontext.space/features): Detailed overview of all platform capabilities and AI models
+
+## Multilingual Support (16 Languages)
+- [🇺🇸 English](https://fluxkontext.space): Default language homepage
+- [🇩🇪 Deutsch](https://fluxkontext.space/de): German language homepage
+- [🇪🇸 Español](https://fluxkontext.space/es): Spanish language homepage
+- [🇨🇳 中文](https://fluxkontext.space/zh): Chinese language homepage
+- [🇫🇷 Français](https://fluxkontext.space/fr): French language homepage
+- [🇮🇹 Italiano](https://fluxkontext.space/it): Italian language homepage
+- [🇯🇵 日本語](https://fluxkontext.space/ja): Japanese language homepage
+- [🇰🇷 한국어](https://fluxkontext.space/ko): Korean language homepage
+- [🇳🇱 Nederlands](https://fluxkontext.space/nl): Dutch language homepage
+- [🇵🇱 Polski](https://fluxkontext.space/pl): Polish language homepage
+- [🇵🇹 Português](https://fluxkontext.space/pt): Portuguese language homepage
+- [🇷🇺 Русский](https://fluxkontext.space/ru): Russian language homepage
+- [🇹🇷 Türkçe](https://fluxkontext.space/tr): Turkish language homepage
+- [🇸🇦 العربية](https://fluxkontext.space/ar): Arabic language homepage
+- [🇮🇳 हिन्दी](https://fluxkontext.space/hi): Hindi language homepage
+- [🇧🇩 বাংলা](https://fluxkontext.space/bn): Bengali language homepage
+
+## Documentation
+- [API Documentation](https://fluxkontext.space/resources/api): Complete API reference for developers integrating Flux Kontext
+- [User Guides](https://fluxkontext.space/resources): Step-by-step tutorials for getting started with AI image generation
+- [FAQ](https://fluxkontext.space/resources#faq): Common questions about AI image generation and platform usage
+
+## Legal & Support
+- [Terms of Service](https://fluxkontext.space/terms): Platform usage terms and conditions
+- [Privacy Policy](https://fluxkontext.space/privacy): Data protection and privacy practices
+- [Refund Policy](https://fluxkontext.space/refund): Refund terms and procedures
+
+## Optional
+- [About Flux Kontext](https://fluxkontext.space/#about): Company background and mission
+- [Contact Information](https://fluxkontext.space/#contact): Support channels and contact methods
+- [Blog & Updates](https://fluxkontext.space/resources#blog): Latest news and AI image generation tips 
