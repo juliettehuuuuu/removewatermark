@@ -167,18 +167,18 @@ export default function ToolPage() {
                 className="px-4 py-2 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white rounded-lg font-semibold shadow hover:from-pink-600 hover:to-yellow-600 transition-all"
                 onClick={() => setShowFeedback(true)}
               >
-                用户反馈
+                Feedback
               </button>
             </div>
             {showFeedback && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
                 <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-                  <h2 className="text-xl font-bold mb-2 text-slate-900">提交反馈</h2>
+                  <h2 className="text-xl font-bold mb-2 text-slate-900">Submit Feedback</h2>
                   <form onSubmit={handleSubmitFeedback}>
                     <textarea
                       ref={feedbackRef}
                       className="w-full h-28 border border-slate-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400 text-slate-800"
-                      placeholder="请填写您的建议或遇到的问题..."
+                      placeholder="Please enter your suggestions or issues..."
                       value={feedback}
                       onChange={e => setFeedback(e.target.value)}
                       required
@@ -189,21 +189,21 @@ export default function ToolPage() {
                         className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-semibold hover:bg-slate-300"
                         onClick={() => setShowFeedback(false)}
                       >
-                        取消
+                        Cancel
                       </button>
                       <button
                         type="submit"
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
                       >
-                        提交反馈
+                        Submit
                       </button>
                     </div>
                   </form>
+                  {feedbackStatus && (
+                    <div className="mt-3 text-center text-green-600 font-medium">{feedbackStatus}</div>
+                  )}
                 </div>
               </div>
-            )}
-            {feedbackStatus && (
-              <div className="mt-2 text-center text-green-600 font-medium">{feedbackStatus}</div>
             )}
           </div>
         </div>

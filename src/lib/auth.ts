@@ -1,6 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials"
-import GitHubProvider from "next-auth/providers/github"
-import GoogleProvider from "next-auth/providers/google"
+// import GitHubProvider from "next-auth/providers/github"
+// import GoogleProvider from "next-auth/providers/google"
 import type { NextAuthOptions } from "next-auth"
 import { getClientIp } from "@/lib/utils/ip"
 import { getIsoTimestr } from "@/lib/utils/time"
@@ -12,35 +12,10 @@ import { createClient } from '@supabase/supabase-js'
 const providers: any[] = []
 
 // Google Auth (如果配置了)
-if (
-  process.env.NEXT_PUBLIC_AUTH_GOOGLE_ENABLED === "true" &&
-  process.env.GOOGLE_ID &&
-  process.env.GOOGLE_SECRET
-) {
-  providers.push(
-    GoogleProvider({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
-      httpOptions: {
-        timeout: 10000, // 增加超时到10秒
-      },
-    })
-  )
-}
+// 已移除
 
 // Github Auth (如果配置了)
-if (
-  process.env.NEXT_PUBLIC_AUTH_GITHUB_ENABLED === "true" &&
-  process.env.AUTH_GITHUB_ID &&
-  process.env.AUTH_GITHUB_SECRET
-) {
-  providers.push(
-    GitHubProvider({
-      clientId: process.env.AUTH_GITHUB_ID,
-      clientSecret: process.env.AUTH_GITHUB_SECRET,
-    })
-  )
-}
+// 已移除
 
 // 🔥 简化的邮箱登录 - 只使用Supabase认证
 if (process.env.NEXT_PUBLIC_AUTH_CREDENTIALS_ENABLED === "true") {
