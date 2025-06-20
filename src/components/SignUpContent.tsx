@@ -27,21 +27,25 @@ export function SignUpContent() {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-
-    // 实际项目中应调用后端API创建用户
-    // 这里我们模拟一个成功创建并登录的流程
     try {
-      // 1. 调用后端API创建用户 (此处省略，需要您自己实现)
-      // const res = await fetch('/api/auth/register', { ... })
-      // if (!res.ok) throw new Error("Failed to create account")
-      
-      // 2. 创建成功后，直接使用credentials登录
+      // 1. 先请求后端注册API
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name })
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || 'Registration failed.')
+        setIsLoading(false)
+        return
+      }
+      // 2. 注册成功后自动登录
       const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
       })
-
       if (result?.error) {
         setError("Could not sign in after account creation.")
       } else {
