@@ -66,11 +66,11 @@ if (process.env.NEXT_PUBLIC_AUTH_CREDENTIALS_ENABLED === "true") {
             return null
           }
 
-          // ✅ 检查邮箱验证状态
-          if (!data.user.email_confirmed_at) {
-            console.log('邮箱未验证')
-            return null
-          }
+          // ✅ 检查邮箱验证状态 (暂时移除，以允许新用户注册后直接登录)
+          // if (!data.user.email_confirmed_at) {
+          //   console.log('邮箱未验证，但暂时允许登录')
+          //   // return null // 暂时注释掉以允许登录
+          // }
 
           // 🎉 登录成功
           return {
