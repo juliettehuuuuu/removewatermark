@@ -950,6 +950,9 @@ video {
 .h-full {
   height: 100%;
 }
+.h-screen {
+  height: 100vh;
+}
 .min-h-\[80px\] {
   min-height: 80px;
 }
@@ -1256,6 +1259,10 @@ video {
 }
 .border-transparent {
   border-color: transparent;
+}
+.border-blue-600 {
+  --tw-border-opacity: 1;
+  border-color: rgb(37 99 235 / var(--tw-border-opacity, 1));
 }
 .border-t-transparent {
   border-top-color: transparent;

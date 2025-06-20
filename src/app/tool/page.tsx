@@ -14,13 +14,40 @@ export default function ToolPage() {
   const [resultUrl, setResultUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const [remaining, setRemaining] = useState<number | null>(null)
   const [showFeedback, setShowFeedback] = useState(false)
   const [feedback, setFeedback] = useState("")
   const [feedbackStatus, setFeedbackStatus] = useState<string | null>(null)
   const feedbackRef = useRef<HTMLTextAreaElement>(null)
+
+  // 添加调试信息
+  console.log('🔍 Tool页面状态:', { 
+    session: !!session, 
+    status, 
+    user: session?.user?.email 
+  })
+
+  // 如果session还在加载中，显示加载状态
+  if (status === "loading") {
+    return (
+      <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800">
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <div className="w-8 h-8 mx-auto animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+            <p className="mt-4 text-slate-600">Loading...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 如果没有session，重定向到登录页
+  if (!session) {
+    router.replace('/auth/signin?callbackUrl=/tool')
+    return null
+  }
 
   function handleImageChange(file: File | null) {
     setOriginalFile(file)
