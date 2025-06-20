@@ -45,10 +45,14 @@ if (process.env.NEXT_PUBLIC_AUTH_CREDENTIALS_ENABLED === "true") {
 
         // 🚀 生产环境：使用Supabase认证（自带邮箱验证）
         try {
+          console.log('🔍 开始Supabase登录验证:', credentials.email)
+          
           const supabase = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
           )
+
+          console.log('🔍 Supabase客户端创建成功')
 
           // 🔐 Supabase登录验证（自动检查邮箱验证状态）
           const { data, error } = await supabase.auth.signInWithPassword({
@@ -56,22 +60,24 @@ if (process.env.NEXT_PUBLIC_AUTH_CREDENTIALS_ENABLED === "true") {
             password: credentials.password,
           })
 
+          console.log('🔍 Supabase登录结果:', { 
+            success: !error, 
+            error: error?.message,
+            userExists: !!data?.user,
+            userId: data?.user?.id 
+          })
+
           if (error) {
-            console.log('登录失败:', error.message)
+            console.log('❌ 登录失败:', error.message)
             return null
           }
 
           if (!data.user) {
-            console.log('用户不存在')
+            console.log('❌ 用户不存在')
             return null
           }
 
-          // ✅ 检查邮箱验证状态 (暂时移除，以允许新用户注册后直接登录)
-          // if (!data.user.email_confirmed_at) {
-          //   console.log('邮箱未验证，但暂时允许登录')
-          //   // return null // 暂时注释掉以允许登录
-          // }
-
+          console.log('✅ 登录成功，返回用户信息')
           // 🎉 登录成功
           return {
             id: data.user.id,
@@ -80,7 +86,7 @@ if (process.env.NEXT_PUBLIC_AUTH_CREDENTIALS_ENABLED === "true") {
           }
 
         } catch (error) {
-          console.error('Supabase认证错误:', error)
+          console.error('❌ Supabase认证异常:', error)
           return null
         }
       },
