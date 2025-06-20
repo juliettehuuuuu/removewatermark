@@ -4,26 +4,67 @@
 
 @layer base {
   :root {
-    --background: 11 16 19; /* #0b1013 */
-    --foreground: 250 250 250; /* #fafafa */
-    --card: 11 16 19;
-    --card-foreground: 250 250 250;
-    --popover: 11 16 19;
-    --popover-foreground: 250 250 250;
-    --primary: 204 175 133; /* #ccaf85 - orange accent */
-    --primary-foreground: 11 16 19;
-    --secondary: 53 61 81; /* #353d51 */
-    --secondary-foreground: 250 250 250;
-    --muted: 52 48 46; /* #34302e */
-    --muted-foreground: 161 161 170;
-    --accent: 78 154 203; /* #4e9acb - blue accent */
-    --accent-foreground: 11 16 19;
-    --destructive: 193 43 51; /* #c12b33 */
-    --destructive-foreground: 250 250 250;
-    --border: 39 39 42;
-    --input: 39 39 42;
-    --ring: 204 175 133;
+    --background: 255 255 255; /* White */
+    --foreground: 15 23 42; /* Slate 900 */
+    
+    --muted: 241 245 249; /* Slate 100 */
+    --muted-foreground: 100 116 139; /* Slate 500 */
+    
+    --popover: 255 255 255;
+    --popover-foreground: 15 23 42;
+    
+    --card: 255 255 255;
+    --card-foreground: 15 23 42;
+    
+    --border: 226 232 240; /* Slate 200 */
+    --input: 226 232 240; /* Slate 200 */
+    
+    --primary: 79 70 229; /* Indigo 600 */
+    --primary-foreground: 255 255 255;
+    
+    --secondary: 241 245 249; /* Slate 100 */
+    --secondary-foreground: 15 23 42;
+    
+    --accent: 241 245 249; /* Slate 100 */
+    --accent-foreground: 15 23 42;
+    
+    --destructive: 220 38 38; /* Red 600 */
+    --destructive-foreground: 255 255 255;
+    
+    --ring: 99 102 241; /* Indigo 500 */
+    
     --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 15 23 42; /* Slate 900 */
+    --foreground: 226 232 240; /* Slate 200 */
+    
+    --muted: 30 41 59; /* Slate 800 */
+    --muted-foreground: 148 163 184; /* Slate 400 */
+    
+    --popover: 15 23 42;
+    --popover-foreground: 226 232 240;
+    
+    --card: 15 23 42;
+    --card-foreground: 226 232 240;
+    
+    --border: 30 41 59; /* Slate 800 */
+    --input: 30 41 59; /* Slate 800 */
+    
+    --primary: 129 140 248; /* Indigo 400 */
+    --primary-foreground: 15 23 42;
+    
+    --secondary: 30 41 59; /* Slate 800 */
+    --secondary-foreground: 226 232 240;
+    
+    --accent: 30 41 59; /* Slate 800 */
+    --accent-foreground: 226 232 240;
+    
+    --destructive: 127 29 29; /* Red 900 */
+    --destructive-foreground: 226 232 240;
+    
+    --ring: 129 140 248; /* Indigo 400 */
   }
 }
 
@@ -32,9 +73,8 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
-    background: linear-gradient(180deg, #0b1013 0%, #000 100%);
-    min-height: 100vh;
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -58,6 +98,10 @@
   }
 
   .hero-gradient {
+    background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.1) 0%, rgba(255, 255, 255, 0.8) 70%);
+  }
+
+  .dark .hero-gradient {
     background: radial-gradient(ellipse at center, rgba(204, 175, 133, 0.1) 0%, rgba(11, 16, 19, 0.8) 70%);
   }
 
@@ -119,6 +163,9 @@
   /* Mobile optimizations */
   @media (max-width: 768px) {
     .hero-gradient {
+      background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.05) 0%, rgba(255, 255, 255, 0.9) 50%);
+    }
+    .dark .hero-gradient {
       background: radial-gradient(ellipse at center, rgba(204, 175, 133, 0.05) 0%, rgba(11, 16, 19, 0.9) 50%);
     }
   }
@@ -211,48 +258,49 @@
   @keyframes modalFadeIn {
     from {
       opacity: 0;
-      transform: scale(0.9);
+      transform: scale(0.95) translateY(-10px);
     }
     to {
       opacity: 1;
-      transform: scale(1);
+      transform: scale(1) translateY(0);
     }
   }
 
   @keyframes modalFadeOut {
     from {
       opacity: 1;
-      transform: scale(1);
+      transform: scale(1) translateY(0);
     }
     to {
       opacity: 0;
-      transform: scale(0.9);
+      transform: scale(0.95) translateY(-10px);
     }
   }
 
-  /* 轻量化视频卡片悬停效果 */
+  /* 视频卡片样式 */
   .video-card {
-    transition: transform 0.15s ease;
-    will-change: transform;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
   }
 
   .video-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 
-  /* 播放按钮脉冲动画 */
   .play-button-pulse {
     animation: pulse 2s infinite;
   }
 
   @keyframes pulse {
     0%, 100% {
-      transform: scale(1);
       opacity: 1;
+      transform: scale(1);
     }
     50% {
-      transform: scale(1.05);
       opacity: 0.8;
+      transform: scale(1.05);
     }
   }
 
@@ -261,7 +309,7 @@
     position: relative;
     width: 100%;
     height: 0;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    padding-bottom: 56.25%; /* 16:9 比例 */
   }
 
   .responsive-video video {
@@ -271,67 +319,59 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 8px;
   }
 
-  /* 按钮点击颤动动画效果 */
+  /* 按钮点击反馈动画 */
   @keyframes button-click {
     0% { transform: scale(1); }
-    50% { transform: scale(0.98); }
+    50% { transform: scale(0.95); }
     100% { transform: scale(1); }
   }
 
   .btn-feedback {
+    transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .btn-feedback:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .btn-feedback:active {
-    animation: button-click 0.2s ease-out;
+    animation: button-click 0.1s ease;
   }
 
-  /* 增强主要按钮的效果 */
   .btn-feedback.btn-primary {
-    background: linear-gradient(135deg, 
-      rgba(204, 175, 133, 0.9) 0%, 
-      rgba(204, 175, 133, 0.7) 50%, 
-      rgba(204, 175, 133, 0.9) 100%);
-    box-shadow: 
-      0 8px 32px rgba(204, 175, 133, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
   }
 
   .btn-feedback.btn-primary:hover {
-    background: linear-gradient(135deg, 
-      rgba(204, 175, 133, 1) 0%, 
-      rgba(204, 175, 133, 0.8) 50%, 
-      rgba(204, 175, 133, 1) 100%);
-    box-shadow: 
-      0 12px 40px rgba(204, 175, 133, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.9) 0%, hsl(var(--accent) / 0.9) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
   }
 
-  /* 按钮加载状态 */
+  /* 加载状态按钮 */
   .btn-loading {
     position: relative;
-    pointer-events: none;
+    color: transparent;
   }
 
   .btn-loading::after {
-    content: '';
+    content: "";
     position: absolute;
-    top: 50%;
-    left: 50%;
     width: 16px;
     height: 16px;
-    margin: -8px 0 0 -8px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
     border: 2px solid transparent;
     border-top: 2px solid currentColor;
     border-radius: 50%;
@@ -341,6 +381,23 @@
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+
+  /* 背景模糊效果 */
+  .backdrop-blur-strong {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* 文字阴影 */
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 边框渐变 */
+  .border-gradient {
+    border: 2px solid transparent;
+    background: linear-gradient(white, white) padding-box, linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent))) border-box;
   }
 }
 

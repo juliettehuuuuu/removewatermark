@@ -1,51 +1,42 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ImageUploader } from '@/components/ImageUploader'
 import { ResultPreview } from '@/components/ResultPreview'
 import { ToolButtons } from '@/components/ToolButtons'
 import { DownloadButton } from '@/components/DownloadButton'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { Sparkles, Image as ImageIcon, Upload } from 'lucide-react'
 
-// 工具页主页面，客户端组件，管理图片和处理状态
+// 工具页主页面
 export default function ToolPage() {
-  // 原图文件和URL
   const [originalFile, setOriginalFile] = useState<File | null>(null)
-  const [originalUrl, setOriginalUrl] = useState<string | null>(null)
-  // 处理后图片URL
   const [resultUrl, setResultUrl] = useState<string | null>(null)
-  // 加载状态
   const [isLoading, setIsLoading] = useState(false)
-  // 错误信息
   const [error, setError] = useState<string | null>(null)
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   const router = useRouter()
-  // 剩余免费次数
   const [remaining, setRemaining] = useState<number | null>(null)
 
-  // 处理图片上传
-  function handleImageChange(file: File | null, url: string | null) {
+  function handleImageChange(file: File | null) {
     setOriginalFile(file)
-    setOriginalUrl(url)
-    setResultUrl(null) // 每次上传新图片时清空结果
+    setResultUrl(null)
     setError(null)
   }
 
-  // 处理功能按钮点击
-  async function handleAction(action: 'remove' | 'enhance' | 'tune') {
-    if (!originalFile) return
+  async function handleAction(action: 'remove' | 'enhance') {
+    if (!originalFile) {
+      setError("Please upload an image first.")
+      return
+    }
     setIsLoading(true)
     setError(null)
     setResultUrl(null)
     try {
-      // 构造FormData上传图片
       const formData = new FormData()
       formData.append('image', originalFile)
-      // 根据操作类型选择API
-      let api = '/api/remove-watermark'
-      if (action === 'enhance') api = '/api/enhance-image'
-      if (action === 'tune') api = '/api/tune-image'
-      // 请求后端API
+      const api = `/api/${action === 'remove' ? 'remove-watermark' : 'enhance-image'}`
+      
       const res = await fetch(api, { method: 'POST', body: formData })
       if (res.status === 401) {
         router.replace(`/auth/signin?callbackUrl=/tool`)
@@ -55,52 +46,101 @@ export default function ToolPage() {
         setError('You have reached your daily free limit. Please come back tomorrow!')
         return
       }
-      if (!res.ok) throw new Error('Image processing failed')
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Image processing failed')
+      }
       const data = await res.json()
       setResultUrl(data.resultUrl)
       setRemaining(data.remaining)
     } catch (e: any) {
-      setError(e.message || 'Unknown error')
+      setError(e.message || 'Unknown error occurred')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-white overflow-hidden">
-      <main className="relative z-10 min-h-screen py-8 px-4">
-        {/* 页面标题和简介 */}
-        <div className="max-w-3xl mx-auto text-center mb-12">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-2 bg-gradient-to-r from-blue-400 via-orange-300 to-blue-400 bg-clip-text text-transparent drop-shadow-lg">
-            AI Image Watermark Remover
-          </h1>
-          <p className="text-gray-600">Remove watermarks, enhance image quality, and fine-tune your images with AI. Upload your image to get started!</p>
-          {/* 显示今日剩余免费次数 */}
-          {session && (
-            <div className="mt-4 text-lg text-blue-700 font-semibold">
-              Free uses left today: {remaining !== null ? remaining : 10}/10
+    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800">
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold text-slate-800">
+                AI Watermark Remover
+              </span>
+            </div>
+            {session && (
+              <div className="flex items-center space-x-4">
+                <div className="text-sm text-slate-600">
+                  <span className="font-medium text-slate-800">{session.user?.name || session.user?.email}</span>
+                </div>
+                <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                  {remaining !== null ? remaining : 10} credits left
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-grow flex flex-col justify-center py-6 px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl mx-auto">
+
+          <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900">
+              AI-Powered Watermark Removal
+            </h1>
+            <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
+              Bring your watermarked photos back to life. Let AI erase the noise and restore your images.
+            </p>
+          </div>
+          
+          {error && (
+            <div className="mb-4 bg-red-100 border border-red-300 text-red-800 px-4 py-3 rounded-lg text-center text-sm">
+              {error}
             </div>
           )}
-        </div>
-        {/* 错误提示 */}
-        {error && <div className="max-w-2xl mx-auto mb-4 text-red-600 text-center">{error}</div>}
-        {/* 左右分栏：左侧原图，右侧处理后图片 */}
-        <div className="flex flex-col md:flex-row gap-8 max-w-5xl mx-auto">
-          <div className="flex-1 bg-white rounded-lg shadow p-4 flex items-center justify-center min-h-[320px]">
-            {/* 原图上传与预览 */}
-            <ImageUploader onImageChange={handleImageChange} />
+
+          <div className="grid lg:grid-cols-2 gap-6 items-start">
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Upload className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-900">Original Image</h3>
+              </div>
+              <ImageUploader onImageChange={handleImageChange} />
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                  <ImageIcon className="w-5 h-5 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-900">Processed Result</h3>
+              </div>
+              <ResultPreview resultUrl={resultUrl} isLoading={isLoading} />
+            </div>
           </div>
-          <div className="flex-1 bg-white rounded-lg shadow p-4 flex items-center justify-center min-h-[320px]">
-            {/* 处理后图片预览 */}
-            <ResultPreview resultUrl={resultUrl || undefined} />
+
+          <div className="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 mt-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex-grow">
+                  <h3 className="text-lg font-semibold text-slate-900 text-center md:text-left">Choose Your Action</h3>
+                  <p className="text-slate-500 text-sm text-center md:text-left">Select an option to transform your image.</p>
+              </div>
+              <div className="flex-shrink-0 flex items-center gap-3">
+                <ToolButtons onAction={handleAction} disabled={isLoading || !originalFile} />
+              </div>
+              <div className="flex-shrink-0">
+                <DownloadButton resultUrl={resultUrl} />
+              </div>
+            </div>
           </div>
-        </div>
-        {/* 功能按钮区和下载按钮 */}
-        <div className="mt-8 flex flex-col items-center gap-4">
-          <ToolButtons onAction={handleAction} />
-          <DownloadButton resultUrl={resultUrl || undefined} />
-          {/* 加载中提示 */}
-          {isLoading && <div className="text-blue-600 mt-2">Processing, please wait...</div>}
         </div>
       </main>
     </div>

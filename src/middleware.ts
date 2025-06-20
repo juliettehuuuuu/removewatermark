@@ -111,8 +111,8 @@ export function middleware(request: NextRequest) {
     "frame-ancestors 'self';"
   )
   
-  // API路由速率限制
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  // API路由速率限制 (仅在生产环境启用)
+  if (process.env.NODE_ENV === 'production' && request.nextUrl.pathname.startsWith('/api/')) {
     const forwarded = request.headers.get('x-forwarded-for')
     const ip = forwarded ? forwarded.split(',')[0].trim() : 
                request.headers.get('x-real-ip') ?? 
@@ -123,10 +123,10 @@ export function middleware(request: NextRequest) {
     let windowMs = 60000 // 1分钟
     
     if (request.nextUrl.pathname.includes('/auth/')) {
-      limit = 5 // 认证相关更严格
+      limit = 20 // 生产环境认证放宽
       windowMs = 300000 // 5分钟
     } else if (request.nextUrl.pathname.includes('/payment/')) {
-      limit = 3 // 支付相关最严格
+      limit = 10 // 生产环境支付放宽
       windowMs = 600000 // 10分钟
     }
     
@@ -143,7 +143,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // 暂时禁用middleware，只匹配API路由进行测试
-    '/api/(.*)',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 } 

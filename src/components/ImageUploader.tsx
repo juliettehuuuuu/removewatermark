@@ -1,30 +1,55 @@
 import React, { useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { Upload, Image as ImageIcon, X } from 'lucide-react'
 
-// 图片上传组件，支持选择图片并预览
-// props: onImageChange (可选) - 图片更改时的回调
-export function ImageUploader({ onImageChange }: { onImageChange?: (file: File | null, url: string | null) => void }) {
-  // 用于存储用户选择的图片文件
+// 图片上传组件
+export function ImageUploader({ onImageChange }: { onImageChange?: (file: File | null) => void }) {
   const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { status } = useSession()
   const router = useRouter()
 
-  // 处理文件选择事件
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] || null
-    if (file) {
+    if (file && file.type.startsWith('image/')) {
       const url = URL.createObjectURL(file)
       setImageUrl(url)
-      onImageChange?.(file, url)
+      onImageChange?.(file)
     } else {
       setImageUrl(null)
-      onImageChange?.(null, null)
+      onImageChange?.(null)
     }
   }
 
-  // 触发文件选择，未登录则跳转登录页
+  function handleDrag(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(e.type === "dragenter" || e.type === "dragover")
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+    
+    if (e.dataTransfer.files?.[0]?.type.startsWith('image/')) {
+      const file = e.dataTransfer.files[0]
+      const url = URL.createObjectURL(file)
+      setImageUrl(url)
+      onImageChange?.(file)
+    }
+  }
+
+  function handleClear() {
+    setImageUrl(null)
+    onImageChange?.(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
   function handleClick() {
     if (status === 'unauthenticated') {
       router.push('/auth/signin?callbackUrl=/tool')
@@ -34,24 +59,47 @@ export function ImageUploader({ onImageChange }: { onImageChange?: (file: File |
   }
 
   return (
-    <div className="w-full flex flex-col items-center">
-      {/* 图片预览区 */}
+    <div className="w-full">
       {imageUrl ? (
-        <img src={imageUrl} alt="Original" className="max-h-64 rounded shadow mb-4" />
+        <div className="relative group">
+          <img 
+            src={imageUrl} 
+            alt="Original" 
+            className="w-full h-64 object-contain rounded-lg bg-slate-50 border border-slate-200" 
+          />
+          <button
+            onClick={handleClear}
+            className="absolute top-2 right-2 w-7 h-7 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
+            aria-label="Remove image"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
       ) : (
-        <div className="w-48 h-48 flex items-center justify-center bg-gray-100 rounded mb-4 text-gray-400">
-          No image selected
+        <div
+          className={`w-full h-64 border-2 border-dashed rounded-lg flex flex-col items-center justify-center transition-all cursor-pointer ${
+            dragActive 
+              ? 'border-blue-500 bg-blue-50' 
+              : 'border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50'
+          }`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+          onClick={handleClick}
+        >
+          <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-3">
+            <Upload className="w-6 h-6 text-slate-500" />
+          </div>
+          <p className="text-slate-700 font-medium">Click to upload or drag & drop</p>
+          <p className="text-slate-500 text-sm">PNG, JPG, WEBP (max 5MB)</p>
         </div>
       )}
-      {/* 上传按钮 */}
-      <button type="button" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" onClick={handleClick}>
-        Upload Image
-      </button>
-      {/* 隐藏的文件输入框 */}
+      
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/png, image/jpeg, image/webp"
         className="hidden"
         onChange={handleFileChange}
       />

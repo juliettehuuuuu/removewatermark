@@ -21,6 +21,9 @@ if (
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
       clientSecret: process.env.GOOGLE_SECRET,
+      httpOptions: {
+        timeout: 10000, // 增加超时到10秒
+      },
     })
   )
 }
