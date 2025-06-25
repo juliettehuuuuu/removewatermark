@@ -4,7 +4,7 @@ import { ImageUploader } from '@/components/ImageUploader'
 import { ResultPreview } from '@/components/ResultPreview'
 import { ToolButtons } from '@/components/ToolButtons'
 import { DownloadButton } from '@/components/DownloadButton'
-import { useSession, signOut } from 'next-auth/react'
+import { useAuthContext } from '@/components/providers/AuthProvider'
 import { useRouter } from 'next/navigation'
 import { Sparkles, Image as ImageIcon, Upload, LogOut } from 'lucide-react'
 
@@ -14,36 +14,38 @@ export default function ToolPage() {
   const [resultUrl, setResultUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { data: session, status } = useSession()
+  const { user, loading, signOut } = useAuthContext()
   const router = useRouter()
   const [remaining, setRemaining] = useState<number | null>(null)
   const [showFeedback, setShowFeedback] = useState(false)
   const [feedback, setFeedback] = useState("")
   const [feedbackStatus, setFeedbackStatus] = useState<string | null>(null)
+  const [feedbackLoading, setFeedbackLoading] = useState(false)
   const feedbackRef = useRef<HTMLTextAreaElement>(null)
 
   // 添加调试信息
   console.log('🔍 Tool页面状态:', { 
-    session: !!session, 
-    status, 
-    user: session?.user?.email 
+    user: !!user, 
+    loading, 
+    userEmail: user?.email 
   })
 
   // 使用useEffect处理登录检查，避免在渲染时调用router
   useEffect(() => {
-    if (status === "unauthenticated") {
-      // 只在未认证状态下重定向，避免重复重定向
-      console.log('🔍 用户未登录，但允许浏览页面')
-    }
-  }, [status, router])
+    // 移除自动重定向逻辑，让未登录用户也能浏览页面
+    // 只在用户尝试使用功能时才提示登录
+  }, [loading, user, router])
 
   // 处理退出登录
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: "/" })
+    const result = await signOut()
+    if (result.success) {
+      router.push('/')
+    }
   }
 
-  // 如果session还在加载中，显示加载状态
-  if (status === "loading") {
+  // 如果还在加载中，显示加载状态
+  if (loading) {
     return (
       <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800">
         <div className="flex items-center justify-center h-screen">
@@ -57,9 +59,10 @@ export default function ToolPage() {
   }
 
   function handleImageChange(file: File | null) {
-    // 检查登录状态
-    if (!session) {
-      router.push('/auth/signin?callbackUrl=/tool')
+    // 检查登录状态 - 如果未登录，提示用户登录
+    if (!user) {
+      // 显示友好的提示，而不是直接跳转
+      setError("Please sign in to upload images and use AI tools.")
       return
     }
     setOriginalFile(file)
@@ -69,8 +72,12 @@ export default function ToolPage() {
 
   async function handleAction(action: 'remove' | 'enhance') {
     // 检查登录状态
-    if (!session) {
-      router.push('/auth/signin?callbackUrl=/tool')
+    if (!user) {
+      setError("Please sign in to use AI image processing features.")
+      // 3秒后自动跳转到登录页面
+      setTimeout(() => {
+        router.push('/auth/signin?callbackUrl=/tool')
+      }, 2000)
       return
     }
     
@@ -112,18 +119,47 @@ export default function ToolPage() {
   async function handleSubmitFeedback(e: React.FormEvent) {
     e.preventDefault()
     setFeedbackStatus(null)
+    setFeedbackLoading(true)
+    
     try {
+      // 添加超时控制
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10秒超时
+      
       const res = await fetch("/api/send-feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ feedback }),
+        body: JSON.stringify({ 
+          feedback,
+          user: user ? {
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.name || user.email
+          } : null
+        }),
+        signal: controller.signal
       })
-      if (!res.ok) throw new Error("提交失败，请稍后再试")
+      
+      clearTimeout(timeoutId)
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.error || "提交失败，请稍后再试")
+      }
+      
       setFeedback("")
-      setFeedbackStatus("反馈已成功提交，感谢您的宝贵意见！")
+      setFeedbackStatus("✅ 反馈已成功提交，感谢您的宝贵意见！")
       setShowFeedback(false)
-    } catch (e) {
-      setFeedbackStatus("提交失败，请稍后再试")
+      
+    } catch (e: any) {
+      console.error('Feedback submission error:', e)
+      if (e.name === 'AbortError') {
+        setFeedbackStatus("⏰ 提交超时，请稍后再试")
+      } else {
+        setFeedbackStatus("❌ " + (e.message || "提交失败，请稍后再试"))
+      }
+    } finally {
+      setFeedbackLoading(false)
     }
   }
 
@@ -132,18 +168,21 @@ export default function ToolPage() {
       <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
+            <button 
+              onClick={() => router.push('/')}
+              className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+            >
               <div className="w-9 h-9 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold text-slate-800">
                 AI Watermark Remover
               </span>
-            </div>
-            {session && (
+            </button>
+            {user && (
               <div className="flex items-center space-x-4">
                 <div className="text-sm text-slate-600">
-                  <span className="font-medium text-slate-800">{session.user?.name || session.user?.email}</span>
+                  <span className="font-medium text-slate-800">{user.user_metadata?.name || user.email}</span>
                 </div>
                 <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
                   {remaining !== null ? remaining : 10} credits left
@@ -170,7 +209,8 @@ export default function ToolPage() {
               AI-Powered Watermark Removal
             </h1>
             <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
-              Bring your watermarked photos back to life. Let AI erase the noise and restore your images.
+              <span className="block">Bring your watermarked photos back to life.</span>
+              <span className="block">Let AI erase the noise and restore your images.</span>
             </p>
           </div>
           
@@ -202,61 +242,54 @@ export default function ToolPage() {
             </div>
           </div>
 
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-slate-200 p-6 mt-6">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex-grow">
-                  <h3 className="text-lg font-semibold text-slate-900 text-center md:text-left">Choose Your Action</h3>
-                  <p className="text-slate-500 text-sm text-center md:text-left">Select an option to transform your image.</p>
-              </div>
-              <div className="flex-shrink-0 flex items-center gap-3">
-                <ToolButtons onAction={handleAction} disabled={isLoading || !originalFile} />
-              </div>
-              <div className="flex-shrink-0">
-                <DownloadButton resultUrl={resultUrl} />
-              </div>
-            </div>
-            <div className="flex justify-end mt-4">
+          <div className="mt-6 flex flex-col items-center space-y-4">
+            <ToolButtons onAction={handleAction} disabled={!originalFile || isLoading} />
+            {resultUrl && <DownloadButton resultUrl={resultUrl} />}
+          </div>
+
+          <div className="mt-8 text-center">
+            {!showFeedback ? (
               <button
-                className="px-4 py-2 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white rounded-lg font-semibold shadow hover:from-pink-600 hover:to-yellow-600 transition-all"
                 onClick={() => setShowFeedback(true)}
+                className="text-sm text-slate-600 hover:text-slate-800 underline transition-colors"
               >
-                Feedback
+                💡 Feedback & Suggestions
               </button>
-            </div>
-            {showFeedback && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-                  <h2 className="text-xl font-bold mb-2 text-slate-900">Submit Feedback</h2>
-                  <form onSubmit={handleSubmitFeedback}>
-                    <textarea
-                      ref={feedbackRef}
-                      className="w-full h-28 border border-slate-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400 text-slate-800"
-                      placeholder="Please enter your suggestions or issues..."
-                      value={feedback}
-                      onChange={e => setFeedback(e.target.value)}
-                      required
-                    />
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg font-semibold hover:bg-slate-300"
-                        onClick={() => setShowFeedback(false)}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </form>
-                  {feedbackStatus && (
-                    <div className="mt-3 text-center text-green-600 font-medium">{feedbackStatus}</div>
-                  )}
+            ) : (
+              <form onSubmit={handleSubmitFeedback} className="max-w-md mx-auto">
+                <textarea
+                  ref={feedbackRef}
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Share your feedback, report bugs, or suggest improvements..."
+                  className="w-full p-3 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  rows={3}
+                  required
+                />
+                <div className="mt-2 flex space-x-2">
+                  <button
+                    type="submit"
+                    disabled={feedbackLoading}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors text-sm font-medium flex items-center space-x-2"
+                  >
+                    {feedbackLoading && (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    )}
+                    <span>{feedbackLoading ? "提交中..." : "Submit"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowFeedback(false)}
+                    disabled={feedbackLoading}
+                    className="px-4 py-2 bg-slate-300 text-slate-700 rounded-lg hover:bg-slate-400 disabled:bg-slate-200 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
                 </div>
-              </div>
+              </form>
+            )}
+            {feedbackStatus && (
+              <p className="mt-2 text-sm text-green-600">{feedbackStatus}</p>
             )}
           </div>
         </div>

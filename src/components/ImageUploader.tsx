@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuthContext } from '@/components/providers/AuthProvider'
 import { useRouter } from 'next/navigation'
 import { Upload, Image as ImageIcon, X } from 'lucide-react'
 
@@ -8,7 +8,7 @@ export function ImageUploader({ onImageChange }: { onImageChange?: (file: File |
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { status } = useSession()
+  const { user, loading } = useAuthContext()
   const router = useRouter()
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -51,7 +51,7 @@ export function ImageUploader({ onImageChange }: { onImageChange?: (file: File |
   }
 
   function handleClick() {
-    if (status === 'unauthenticated') {
+    if (!loading && !user) {
       router.push('/auth/signin?callbackUrl=/tool')
       return
     }

@@ -48,7 +48,7 @@ export async function createStripeCheckout(params: CreatePaymentParams): Promise
           price_data: {
             currency: currency.toLowerCase(),
             product_data: {
-              name: productName || "Flux Kontext Credits",
+              name: productName || "Remove Watermark AI Credits",
               description: description,
             },
             unit_amount: formattedAmount,

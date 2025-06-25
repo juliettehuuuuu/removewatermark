@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { callReplicateAPI } from '@/lib/replicate'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { createServerClient } from '@supabase/ssr'
 import { validateInput, fileSchema, validateImageData, validateFileName } from '@/lib/security/input-validation'
 import { createErrorResponse, logSecurityEvent, FileUploadError } from '@/lib/utils/error-handler'
 
@@ -57,6 +56,32 @@ function createSecurityMiddleware() {
   }
 }
 
+// 获取Supabase会话的辅助函数
+async function getSupabaseSession(req: NextRequest) {
+  const res = new Response()
+  
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return req.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: any) {
+          // 在API路由中，我们不需要设置cookie
+        },
+        remove(name: string, options: any) {
+          // 在API路由中，我们不需要删除cookie
+        },
+      },
+    }
+  )
+  
+  const { data: { session }, error } = await supabase.auth.getSession()
+  return { session, error }
+}
+
 // 去水印API路由，POST方法，接收图片并返回处理后图片URL
 export async function POST(req: NextRequest) {
   try {
@@ -72,12 +97,14 @@ export async function POST(req: NextRequest) {
       return createErrorResponse(headerValidation.error!, 400, req)
     }
 
-    // 登录校验
-    const session = await getServerSession(authOptions)
-    if (!session || !session.user?.email) {
+    // 登录校验 - 使用Supabase
+    const { session, error: authError } = await getSupabaseSession(req)
+    
+    if (authError || !session || !session.user?.email) {
       logSecurityEvent('unauthorized_access', {
         path: '/api/remove-watermark',
-        ip: await getClientIpFromRequest(req)
+        ip: await getClientIpFromRequest(req),
+        error: authError?.message
       })
       return createErrorResponse('Not authenticated', 401, req)
     }

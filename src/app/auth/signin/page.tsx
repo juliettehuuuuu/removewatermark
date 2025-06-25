@@ -3,22 +3,17 @@ import { Suspense } from 'react'
 import { SignInContent } from '@/components/SignInContent'
 
 export const metadata: Metadata = {
-  title: 'Sign In - Access Your AI Image Generation Account | Flux Kontext',
-  description: 'Sign in to your Flux Kontext account to access AI-powered image generation tools. Create professional images with advanced AI technology instantly.',
+  title: 'Sign In - Access Your Remove Watermark AI Account | Remove Watermark AI',
+  description: 'Sign in to your Remove Watermark AI account to access AI-powered watermark removal tools. Remove watermarks from images with advanced AI technology instantly.',
   keywords: [
-    'sign in',
-    'login',
-    'flux kontext account',
-    'ai image generator login',
-    'flux kontext sign in',
-    'image creation account',
-    'ai image generation login'
+    'remove watermark ai account',
+    'remove watermark ai sign in'
   ],
   alternates: {
     canonical: '/auth/signin',
   },
   openGraph: {
-    title: 'Sign In to Flux Kontext',
+    title: 'Sign In to Remove Watermark AI',
     description: 'Access your AI image generation account',
     url: '/auth/signin',
   },

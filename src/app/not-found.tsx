@@ -29,7 +29,7 @@ export default function NotFound() {
         </div>
         
         <div className="text-sm text-muted-foreground">
-          <p>Need help? <a href="mailto:support@fluxkontext.space" className="text-primary hover:underline">support@fluxkontext.space</a></p>
+          <p>Need help? <a href="mailto:support@remove-watermark-ai.com" className="text-primary hover:underline">support@remove-watermark-ai.com</a></p>
         </div>
       </div>
     </div>

@@ -262,7 +262,7 @@ class R2StorageService {
     const response = await fetch(imageUrl, {
       method: 'GET',
       headers: {
-        'User-Agent': 'FluxKontext/1.0',
+        'User-Agent': 'RemoveWatermarkAI/1.0',
         'Accept': 'image/*'
       },
       // 增加超时时间
@@ -394,7 +394,7 @@ class R2StorageService {
       const verifyResponse = await fetch(r2Url, {
         method: 'HEAD', // 只获取头部信息，不下载内容
         headers: {
-          'User-Agent': 'FluxKontext/1.0'
+          'User-Agent': 'RemoveWatermarkAI/1.0'
         },
         signal: AbortSignal.timeout(10000) // 10秒超时
       });

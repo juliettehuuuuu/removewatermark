@@ -105,7 +105,7 @@ export function validateUrl(url: string): boolean {
     const urlObj = new URL(url)
     const allowedProtocols = ['http:', 'https:']
     const allowedDomains = [
-      'fluxkontext.space',
+      'remove-watermark-ai.com',
       'replicate.com',
       'api.replicate.com',
       'fal.ai',

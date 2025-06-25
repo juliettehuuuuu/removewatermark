@@ -1,171 +1,111 @@
 import { NextRequest, NextResponse } from 'next/server'
-import nodemailer from 'nodemailer'
-import { validateInput, feedbackSchema, sanitizeInput } from '@/lib/security/input-validation'
-import { createErrorResponse, logSecurityEvent, ValidationError } from '@/lib/utils/error-handler'
 
-// 从请求中获取客户端IP的辅助函数
-async function getClientIpFromRequest(req: Request): Promise<string> {
-  try {
-    const forwardedFor = req.headers.get('x-forwarded-for')
-    const realIp = req.headers.get('x-real-ip')
-    const cfConnectingIp = req.headers.get('cf-connecting-ip')
-    const xClientIp = req.headers.get('x-client-ip')
-    
-    if (cfConnectingIp) return cfConnectingIp
-    if (realIp) return realIp
-    if (forwardedFor) return forwardedFor.split(',')[0].trim()
-    if (xClientIp) return xClientIp
-    
-    return 'unknown'
-  } catch {
-    return 'unknown'
-  }
-}
-
-// 安全检查中间件
-function createSecurityMiddleware() {
-  return {
-    validateHeaders: (req: Request): { isValid: boolean; error?: string } => {
-      const headers = req.headers
-      
-      // 检查Content-Type
-      const contentType = headers.get('content-type')
-      if (contentType && !contentType.includes('application/json')) {
-        return { isValid: false, error: '只支持application/json格式' }
-      }
-      
-      // 检查User-Agent
-      const userAgent = headers.get('user-agent')
-      if (!userAgent || userAgent.length > 500) {
-        return { isValid: false, error: '无效的User-Agent' }
-      }
-      
-      // 检查请求大小
-      const contentLength = headers.get('content-length')
-      if (contentLength && parseInt(contentLength) > 1024 * 1024) { // 1MB
-        return { isValid: false, error: '请求体过大' }
-      }
-      
-      return { isValid: true }
-    }
-  }
-}
-
+// 快速响应的反馈API - 优化邮件发送性能
 export async function POST(req: NextRequest) {
   try {
-    // 🔐 安全检查：验证请求头
-    const securityMiddleware = createSecurityMiddleware()
-    const headerValidation = securityMiddleware.validateHeaders(req)
-    if (!headerValidation.isValid) {
-      logSecurityEvent('invalid_headers', {
-        error: headerValidation.error,
-        ip: await getClientIpFromRequest(req),
-        path: '/api/send-feedback'
-      })
-      return createErrorResponse(headerValidation.error!, 400, req)
+    console.log('📝 收到反馈提交请求')
+    
+    const { feedback, user } = await req.json()
+
+    // 基础验证
+    if (!feedback || typeof feedback !== 'string') {
+      return NextResponse.json({ error: 'Feedback content cannot be empty' }, { status: 400 })
     }
 
-    // 从环境变量中获取邮箱配置，增强安全性
-    const { GMAIL_USER, GMAIL_PASS, GMAIL_RECEIVER } = process.env
-
-    // 校验环境变量
-    if (!GMAIL_USER || !GMAIL_PASS || !GMAIL_RECEIVER) {
-      logSecurityEvent('configuration_error', {
-        error: 'Email credentials are not set in environment variables',
-        ip: await getClientIpFromRequest(req)
-      })
-      return createErrorResponse('Server configuration error.', 500, req)
+    if (feedback.length > 1000) {
+      return NextResponse.json({ error: 'Feedback content cannot exceed 1000 characters' }, { status: 400 })
     }
 
-    // 解析请求体
-    let requestBody
-    try {
-      requestBody = await req.json()
-    } catch (error) {
-      logSecurityEvent('invalid_json', {
-        error: 'Invalid JSON in request body',
-        ip: await getClientIpFromRequest(req)
-      })
-      return createErrorResponse('Invalid JSON format.', 400, req)
-    }
+    // 输入清理
+    const sanitizedFeedback = feedback.trim().substring(0, 1000)
+    const sanitizedUserName = user?.name ? user.name.trim() : 'Anonymous'
+    const sanitizedUserEmail = user?.email ? user.email.trim() : 'N/A'
 
-    const { feedback, user } = requestBody
+    // 记录反馈到控制台
+    console.log('📝 反馈提交:')
+    console.log('====================================')
+    console.log('用户:', sanitizedUserName)
+    console.log('邮箱:', sanitizedUserEmail) 
+    console.log('用户ID:', user?.id || 'N/A')
+    console.log('时间:', new Date().toLocaleString())
+    console.log('反馈内容:', sanitizedFeedback)
+    console.log('====================================')
 
-    // 🔐 安全检查：输入验证
-    const feedbackValidation = validateInput({ feedback }, feedbackSchema)
-    if (!feedbackValidation.isValid) {
-      logSecurityEvent('invalid_feedback', {
-        errors: feedbackValidation.errors,
-        ip: await getClientIpFromRequest(req),
-        user: user?.email || 'anonymous'
-      })
-      return createErrorResponse(`反馈验证失败: ${feedbackValidation.errors.join(', ')}`, 400, req)
-    }
-
-    // 🔐 安全检查：输入清理
-    const sanitizedFeedback = sanitizeInput(feedback)
-    const sanitizedUserName = user?.name ? sanitizeInput(user.name) : 'Anonymous'
-    const sanitizedUserEmail = user?.email ? sanitizeInput(user.email) : 'N/A'
-
-    // 🔐 安全检查：记录反馈提交
-    logSecurityEvent('feedback_submitted', {
-      userEmail: sanitizedUserEmail,
-      feedbackLength: sanitizedFeedback.length,
-      ip: await getClientIpFromRequest(req)
+    // 先返回成功响应，避免前端等待
+    const response = NextResponse.json({ 
+      message: 'Feedback submitted successfully!',
+      timestamp: new Date().toISOString()
     })
 
-    // 创建Nodemailer transporter，使用Gmail服务
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: GMAIL_USER,
-        pass: GMAIL_PASS, // 推荐使用Gmail应用密码
-      },
-    })
+    // 异步发送邮件，不阻塞响应
+    const emailUser = process.env.EMAIL_SERVER_USER
+    const emailPass = process.env.EMAIL_SERVER_PASSWORD  
+    const emailReceiver = process.env.GMAIL_RECEIVER || emailUser
 
-    // 构建邮件内容
-    const mailOptions = {
-      from: `"AI Tool Feedback" <${GMAIL_USER}>`,
-      to: GMAIL_RECEIVER,
-      subject: '🚀 New Feedback Received for AI Tool',
-      html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-          <h2 style="color: #0d6efd;">新的用户反馈！</h2>
-          <p><strong>来自用户:</strong> ${sanitizedUserName}</p>
-          <p><strong>用户邮箱:</strong> ${sanitizedUserEmail}</p>
-          <p><strong>用户ID:</strong> ${user?.id || 'N/A'}</p>
-          <p><strong>提交时间:</strong> ${new Date().toLocaleString('zh-CN')}</p>
-          <hr style="border: 0; border-top: 1px solid #eee;">
-          <h3>反馈内容:</h3>
-          <p style="background-color: #f8f9fa; border-left: 4px solid #0d6efd; padding: 15px; border-radius: 4px;">
-            ${sanitizedFeedback}
-          </p>
-          <p style="font-size: 0.9em; color: #777;">
-            该邮件由AI去水印工具的反馈系统自动发送。
-          </p>
-        </div>
-      `,
+    if (emailUser && emailPass) {
+      // 使用setImmediate在下一个事件循环中异步发送邮件
+      setImmediate(async () => {
+        try {
+          console.log('📧 开始异步发送邮件...')
+          
+          const nodemailer = await import('nodemailer')
+          
+          // 配置邮件传输器，增加超时设置
+          const transporter = nodemailer.default.createTransport({
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
+            auth: {
+              user: emailUser,
+              pass: emailPass,
+            },
+            connectionTimeout: 5000,  // 5秒连接超时
+            greetingTimeout: 3000,    // 3秒握手超时
+            socketTimeout: 5000,      // 5秒socket超时
+            tls: {
+              rejectUnauthorized: false
+            }
+          })
+
+          // 设置总体超时控制
+          const emailPromise = transporter.sendMail({
+            from: emailUser,
+            to: emailReceiver,
+            subject: '🚀 User Feedback - AI Image Tool',
+            html: `
+              <h2>New User Feedback</h2>
+              <p><strong>From:</strong> ${sanitizedUserName}</p>
+              <p><strong>Email:</strong> ${sanitizedUserEmail}</p>
+              <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+              <hr>
+              <h3>Feedback:</h3>
+              <p>${sanitizedFeedback}</p>
+            `,
+          })
+
+          // 10秒总体超时
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('邮件发送超时')), 10000)
+          })
+
+          await Promise.race([emailPromise, timeoutPromise])
+          console.log('✅ 邮件发送成功')
+          
+        } catch (emailError) {
+          console.error('❌ 邮件发送失败:', emailError)
+          // 邮件失败不影响反馈记录，只记录日志
+        }
+      })
+    } else {
+      console.log('ℹ️ 邮件服务未配置，反馈已记录到控制台')
     }
 
-    // 发送邮件
-    await transporter.sendMail(mailOptions)
-
-    // 🔐 安全检查：记录成功发送
-    logSecurityEvent('feedback_sent_successfully', {
-      userEmail: sanitizedUserEmail,
-      ip: await getClientIpFromRequest(req)
-    })
-
-    return NextResponse.json({ message: 'Feedback submitted successfully!' })
+    return response
 
   } catch (error) {
-    // 🔐 安全检查：记录错误
-    logSecurityEvent('feedback_error', {
-      error: error instanceof Error ? error.message : String(error),
-      ip: await getClientIpFromRequest(req)
-    })
-
-    console.error('Failed to send feedback email:', error)
-    return createErrorResponse('Failed to submit feedback.', 500, req)
+    console.error('❌ 反馈提交失败:', error)
+    return NextResponse.json({ 
+      error: 'Failed to submit feedback. Please try again later.'
+    }, { status: 500 })
   }
 } 

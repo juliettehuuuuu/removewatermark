@@ -3,11 +3,11 @@ import { Suspense } from 'react'
 import { SignUpContent } from '@/components/SignUpContent'
 
 export const metadata: Metadata = {
-  title: 'Sign Up - Create Your AI Image Generation Account | Flux Kontext',
-  description: 'Create your free Flux Kontext account to access professional AI image generation tools. Start creating stunning images with advanced AI technology today.',
+  title: 'Sign Up - Create Your Remove Watermark AI Account | Remove Watermark AI',
+  description: 'Create your free Remove Watermark AI account to access professional AI watermark removal tools. Start removing watermarks from images with advanced AI technology today.',
   keywords: [
-    'sign up',
-    'create account',
+    'remove watermark ai registration',
+    'remove watermark ai sign up',
     'flux kontext registration',
     'ai image generator account',
     'flux kontext sign up',
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     canonical: '/auth/signup',
   },
   openGraph: {
-    title: 'Sign Up for Flux Kontext',
+    title: 'Sign Up for Remove Watermark AI',
     description: 'Create your free AI image generation account',
     url: '/auth/signup',
   },

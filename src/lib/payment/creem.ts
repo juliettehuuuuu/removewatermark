@@ -13,12 +13,12 @@ export const CREEM_PRODUCT_IDS = {
   // Subscription Plans - 与CREEM后台产品名称完全匹配
   subscriptions: {
     plus: {
-      monthly: "FluxKontext-Plus-Monthly",  // $9.90/month
-      yearly: "FluxKontext-Plus-Yearly"    // $99.00/year
+      monthly: "RemoveWatermarkAI-Plus-Monthly",  // $9.90/month
+      yearly: "RemoveWatermarkAI-Plus-Yearly"    // $99.00/year
     },
     pro: {
-      monthly: "FluxKontext-Pro-Monthly",  // $29.90/month
-      yearly: "FluxKontext-Pro-Yearly"     // $299.00/year
+      monthly: "RemoveWatermarkAI-Pro-Monthly",  // $29.90/month
+      yearly: "RemoveWatermarkAI-Pro-Yearly"     // $299.00/year
     }
     // Note: Basic plan is free and doesn't need CREEM product IDs
   },

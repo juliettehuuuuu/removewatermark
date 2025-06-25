@@ -3,10 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientBody from "./ClientBody";
 import { Analytics } from "@/components/Analytics";
-import SessionProvider from "@/components/providers/SessionProvider";
-import { GoogleOneTap } from "@/components/GoogleOneTap";
-import { GoogleOneTapTrigger } from "@/components/GoogleOneTapTrigger";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 import { StructuredData } from "@/components/StructuredData";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,33 +19,28 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Flux Kontext - AI Image Generation Platform | Professional AI Art Creator",
-    template: "%s | Flux Kontext"
+    default: "Remove Watermark AI - AI Image Watermark Remover | Professional AI Tool",
+    template: "%s | Remove Watermark AI"
   },
-  description: "Professional AI image generation platform powered by Flux Kontext. Create stunning images from text descriptions with advanced AI technology. Free AI art generator.",
+  description: "Professional AI image watermark remover powered by Remove Watermark AI. Remove watermarks from images with advanced AI technology. Free watermark removal tool.",
   keywords: [
-    "flux kontext",
-    "ai image generator",
-    "text to image ai",
-    "ai art generator",
-    "flux ai",
-    "image generation ai",
-    "ai art creator",
-    "flux kontext ai",
-    "professional ai images",
-    "ai image creation",
-    "flux kontext pro",
-    "flux kontext max"
+    "remove watermark ai",
+    "ai watermark remover",
+    "image watermark removal",
+    "ai image tool",
+    "remove watermark",
+    "ai art",
+    "ai image editing"
   ],
-  authors: [{ name: "Flux Kontext Team" }],
-  creator: "Flux Kontext",
-  publisher: "Flux Kontext",
+  authors: [{ name: "Remove Watermark AI Team" }],
+  creator: "Remove Watermark AI",
+  publisher: "Remove Watermark AI",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://fluxkontext.space'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://remove-watermark-ai.com'),
   robots: {
     index: true,
     follow: true,
@@ -86,14 +80,14 @@ export default function RootLayout({
         <StructuredData />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <SessionProvider>
-          <ClientBody>
-            {children}
-          </ClientBody>
-          <GoogleOneTap />
-          <GoogleOneTapTrigger />
-          <Analytics />
-        </SessionProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <ClientBody>
+              {children}
+            </ClientBody>
+            <Analytics />
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

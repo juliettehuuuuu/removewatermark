@@ -1,70 +1,52 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { signIn, getProviders } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-// 导入认证文案模块
-import { auth, common } from "@/lib/content"
+import { useAuthContext } from "@/components/providers/AuthProvider"
 
 export function SignInContent() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
-  const [providers, setProviders] = useState<any>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { signIn, loading } = useAuthContext()
 
-  // 获取可用的认证提供商
-  useEffect(() => {
-    const fetchProviders = async () => {
-      const res = await getProviders()
-      setProviders(res)
-    }
-    fetchProviders()
-  }, [])
-
-  // 检查URL中的错误参数 - 使用auth模块的错误文案
+  // 检查URL中的错误参数
   useEffect(() => {
     const errorParam = searchParams.get('error')
     if (errorParam) {
-      const errorMessage = errorParam === 'CredentialsSignin' 
-        ? "Invalid email or password."
-        : "OAuth login error, please try again."
-      setError(errorMessage)
+      setError("Login failed. Please try again.")
     }
   }, [searchParams])
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     setError("")
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    })
+    try {
+      console.log('🔍 开始登录流程...')
+      
+      const result = await signIn(email, password)
 
-    if (result?.error) {
-      setError("Invalid email or password.")
-    } else {
+      if (!result.success) {
+        console.error('❌ 登录失败:', result.error)
+        setError(result.error || "Invalid email or password.")
+        return
+      }
+
+      console.log('✅ 登录成功，准备跳转...')
+      
+      // 登录成功后跳转
       const callbackUrl = searchParams.get('callbackUrl') || '/tool'
+      console.log('🔄 跳转到:', callbackUrl)
       router.push(callbackUrl)
+      
+    } catch (error: any) {
+      console.error('❌ 登录流程异常:', error)
+      setError("An unexpected error occurred. Please try again.")
     }
-    setIsLoading(false)
-  }
-
-  const handleOAuthSignIn = async (provider: string) => {
-    setIsLoading(true)
-    setError("")
-    const callbackUrl = searchParams.get('callbackUrl') || '/tool'
-    await signIn(provider, { 
-      callbackUrl,
-      redirect: true 
-    })
-    setIsLoading(false)
   }
 
   return (
@@ -87,22 +69,6 @@ export function SignInContent() {
         </div>
 
         <div className="mt-8 space-y-6">
-          {/* OAuth 登录按钮 */}
-          {/* Google 登录按钮已移除，仅保留邮箱登录 */}
-
-          {/* 分隔线 - 只有在有OAuth提供商时才显示 */}
-          {providers && ((providers.google && process.env.NEXT_PUBLIC_AUTH_GOOGLE_ENABLED === "true") || (providers.github && process.env.NEXT_PUBLIC_AUTH_GITHUB_ENABLED === "true")) && (
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-slate-50 text-slate-500">Or continue with</span>
-              </div>
-            </div>
-          )}
-
-          {/* 邮箱密码登录表单 */}
           <form className="mt-8 space-y-6" onSubmit={handleEmailSignIn}>
             {error && (
               <div className="rounded-md bg-red-100 p-4 border border-red-200">
@@ -114,6 +80,22 @@ export function SignInContent() {
                   </div>
                   <div className="ml-3">
                     <div className="text-sm text-red-700">{error}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 显示处理状态 */}
+            {loading && (
+              <div className="rounded-md bg-blue-100 p-4 border border-blue-200">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="w-5 h-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-sm text-blue-700">
+                      Signing you in...
+                    </div>
                   </div>
                 </div>
               </div>
@@ -132,6 +114,7 @@ export function SignInContent() {
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
                 />
               </div>
               <div>
@@ -146,6 +129,7 @@ export function SignInContent() {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -173,10 +157,10 @@ export function SignInContent() {
             <div>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={loading}
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
-                {isLoading ? "Signing in..." : "Sign in"}
+                {loading ? "Signing in..." : "Sign in"}
               </button>
             </div>
           </form>

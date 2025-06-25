@@ -32,7 +32,7 @@ export function generateMultilingualMetadata(config: MetadataConfig): Metadata {
   } = config
   
   // 强制使用HTTPS协议，确保SEO和安全性
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace('http://', 'https://') || 'https://fluxkontext.space'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace('http://', 'https://') || 'https://remove-watermark-ai.com'
   
   // 生成当前页面的canonical URL
   const canonicalPath = locale === DEFAULT_LOCALE ? path : `/${locale}${path}`
@@ -98,7 +98,7 @@ export function generateMultilingualMetadata(config: MetadataConfig): Metadata {
       type,
       locale: getOpenGraphLocale(locale),
       alternateLocale: alternateLocales,
-      siteName: 'Flux Kontext',
+      siteName: 'Remove Watermark AI',
       images: images.map(img => ({
         url: img.startsWith('http') ? img : `${baseUrl}${img}`,
         width: 1200,
@@ -111,8 +111,8 @@ export function generateMultilingualMetadata(config: MetadataConfig): Metadata {
       title,
       description,
       images: images.map(img => img.startsWith('http') ? img : `${baseUrl}${img}`),
-      creator: '@fluxkontext',
-      site: '@fluxkontext',
+      creator: '@removewatermarkai',
+      site: '@removewatermarkai',
     },
     robots: {
       index: true,
@@ -139,7 +139,7 @@ export function generateMultilingualMetadata(config: MetadataConfig): Metadata {
  */
 export function generateMultilingualSitemap(pages: Array<{path: string, priority?: number, changeFreq?: string}>) {
   // 强制使用HTTPS协议，确保SEO和安全性
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace('http://', 'https://') || 'https://fluxkontext.space'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace('http://', 'https://') || 'https://remove-watermark-ai.com'
   const urls: Array<{
     url: string
     lastModified: Date

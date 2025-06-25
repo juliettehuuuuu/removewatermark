@@ -5,25 +5,25 @@ export function OrganizationSchema() {
   const organizationData = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Flux Kontext",
-    "url": process.env.NEXT_PUBLIC_SITE_URL || "https://fluxkontext.space",
+    "name": "Remove Watermark AI",
+    "url": process.env.NEXT_PUBLIC_SITE_URL || "https://remove-watermark-ai.com",
     "logo": {
       "@type": "ImageObject",
-      "url": `${process.env.NEXT_PUBLIC_SITE_URL || "https://fluxkontext.space"}/logo.png`,
+      "url": `${process.env.NEXT_PUBLIC_SITE_URL || "https://remove-watermark-ai.com"}/logo.png`,
       "width": 256,
       "height": 256
     },
-    "description": "Professional AI image generation platform powered by Flux Kontext. Create stunning images from text descriptions with advanced AI technology.",
+    "description": "Professional AI image generation platform powered by Remove Watermark AI. Create stunning images from text descriptions with advanced AI technology.",
     "foundingDate": "2024",
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer service",
-      "email": "support@fluxkontext.space",
+      "email": "support@remove-watermark-ai.com",
       "availableLanguage": ["English"]
     },
     "sameAs": [
-      "https://twitter.com/fluxkontext",
-      "https://github.com/fluxkontext/fluxkontext.space"
+      "https://twitter.com/remove-watermark-ai",
+      "https://github.com/remove-watermark-ai/remove-watermark-ai.com"
     ],
     "address": {
       "@type": "PostalAddress",
@@ -45,20 +45,20 @@ export function WebSiteSchema() {
   const websiteData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Flux Kontext",
-    "url": process.env.NEXT_PUBLIC_SITE_URL || "https://fluxkontext.space",
-    "description": "Professional AI image generation platform powered by Flux Kontext. Create stunning images from text descriptions with advanced AI technology.",
+    "name": "Remove Watermark AI",
+    "url": process.env.NEXT_PUBLIC_SITE_URL || "https://remove-watermark-ai.com",
+    "description": "Professional AI image generation platform powered by Remove Watermark AI. Create stunning images from text descriptions with advanced AI technology.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": `${process.env.NEXT_PUBLIC_SITE_URL || "https://fluxkontext.space"}/search?q={search_term_string}`
+        "urlTemplate": `${process.env.NEXT_PUBLIC_SITE_URL || "https://remove-watermark-ai.com"}/search?q={search_term_string}`
       },
       "query-input": "required name=search_term_string"
     },
     "publisher": {
       "@type": "Organization",
-      "name": "Flux Kontext"
+      "name": "Remove Watermark AI"
     }
   }
 
@@ -76,31 +76,31 @@ export function SoftwareApplicationSchema() {
   const softwareData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Flux Kontext AI Image Generator",
-    "description": "Professional AI image generation platform. Create stunning images from text descriptions with advanced Flux Kontext AI technology.",
-    "url": process.env.NEXT_PUBLIC_SITE_URL || "https://fluxkontext.space",
+    "name": "Remove Watermark AI Image Generator",
+    "description": "Professional AI image generation platform. Create stunning images from text descriptions with advanced Remove Watermark AI technology.",
+    "url": process.env.NEXT_PUBLIC_SITE_URL || "https://remove-watermark-ai.com",
     "applicationCategory": "ImageEditingApplication",
     "operatingSystem": "Web Browser",
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD",
-      "description": "Free AI image generation with Flux Kontext",
+      "description": "Free AI image generation with Remove Watermark AI",
       "availability": "https://schema.org/InStock"
     },
     "creator": {
       "@type": "Organization",
-      "name": "Flux Kontext"
+      "name": "Remove Watermark AI"
     },
     "featureList": [
       "Text to image AI generation",
       "Image editing with AI",
       "Multiple image processing",
       "Professional image output",
-      "Flux Kontext Pro and Max models",
+      "Remove Watermark AI Pro and Max models",
       "AI-powered image creation"
     ],
-    "screenshot": `${process.env.NEXT_PUBLIC_SITE_URL || "https://fluxkontext.space"}/screenshot.png`,
+    "screenshot": `${process.env.NEXT_PUBLIC_SITE_URL || "https://remove-watermark-ai.com"}/screenshot.png`,
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
@@ -124,11 +124,11 @@ export function ProductSchema() {
   const productData = {
     "@context": "https://schema.org",
     "@type": "Product",
-    "name": "Flux Kontext AI Image Generation Service",
-    "description": "Professional AI image generation service with multiple pricing plans powered by Flux Kontext technology",
+    "name": "Remove Watermark AI Image Generation Service",
+    "description": "Professional AI image generation service with multiple pricing plans powered by Remove Watermark AI technology",
     "brand": {
       "@type": "Brand",
-      "name": "Flux Kontext"
+      "name": "Remove Watermark AI"
     },
     "category": "Software",
     "offers": [
@@ -148,7 +148,7 @@ export function ProductSchema() {
         "priceCurrency": "USD",
         "priceValidUntil": "2025-12-31",
         "availability": "https://schema.org/InStock",
-        "description": "Enhanced AI image generation with Flux Kontext Pro"
+        "description": "Enhanced AI image generation with Remove Watermark AI Pro"
       },
       {
         "@type": "Offer",
@@ -157,7 +157,7 @@ export function ProductSchema() {
         "priceCurrency": "USD",
         "priceValidUntil": "2025-12-31",
         "availability": "https://schema.org/InStock",
-        "description": "Premium AI image generation with Flux Kontext Max"
+        "description": "Premium AI image generation with Remove Watermark AI Max"
       },
       {
         "@type": "Offer",
@@ -257,14 +257,14 @@ export function VideoObjectSchema({
     "thumbnailUrl": thumbnailUrl,
     "uploadDate": uploadDate,
     "duration": duration,
-    "contentUrl": `${process.env.NEXT_PUBLIC_SITE_URL || "https://fluxkontext.space"}/videos/sample.mp4`,
-    "embedUrl": `${process.env.NEXT_PUBLIC_SITE_URL || "https://fluxkontext.space"}/embed/sample`,
+    "contentUrl": `${process.env.NEXT_PUBLIC_SITE_URL || "https://remove-watermark-ai.com"}/videos/sample.mp4`,
+    "embedUrl": `${process.env.NEXT_PUBLIC_SITE_URL || "https://remove-watermark-ai.com"}/embed/sample`,
     "publisher": {
       "@type": "Organization",
-      "name": "Flux Kontext",
+      "name": "Remove Watermark AI",
       "logo": {
         "@type": "ImageObject",
-        "url": `${process.env.NEXT_PUBLIC_SITE_URL || "https://fluxkontext.space"}/logo.png`
+        "url": `${process.env.NEXT_PUBLIC_SITE_URL || "https://remove-watermark-ai.com"}/logo.png`
       }
     }
   }
@@ -315,17 +315,17 @@ export function StructuredData() {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Flux Kontext",
-    "url": "https://fluxkontext.space",
-    "logo": "https://fluxkontext.space/logo.png",
-    "description": "Professional AI image generation platform powered by Flux Kontext. Create stunning images from text descriptions with advanced AI technology.",
+    "name": "Remove Watermark AI",
+    "url": "https://remove-watermark-ai.com",
+    "logo": "https://remove-watermark-ai.com/logo.png",
+    "description": "Professional AI image generation platform powered by Remove Watermark AI. Create stunning images from text descriptions with advanced AI technology.",
     "sameAs": [
-      "https://twitter.com/fluxkontext",
-      "https://github.com/fluxkontext"
+      "https://twitter.com/remove-watermark-ai",
+      "https://github.com/remove-watermark-ai"
     ],
     "contactPoint": {
       "@type": "ContactPoint",
-      "email": "support@fluxkontext.space",
+      "email": "support@remove-watermark-ai.com",
       "contactType": "customer service"
     }
   }
@@ -333,12 +333,12 @@ export function StructuredData() {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Flux Kontext",
-    "url": "https://fluxkontext.space",
+    "name": "Remove Watermark AI",
+    "url": "https://remove-watermark-ai.com",
     "description": "Professional AI image generation platform",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://fluxkontext.space/search?q={search_term_string}",
+      "target": "https://remove-watermark-ai.com/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   }
@@ -346,14 +346,14 @@ export function StructuredData() {
   const softwareApplicationSchema = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Flux Kontext AI Image Generator",
+    "name": "Remove Watermark AI Image Generator",
     "applicationCategory": "MultimediaApplication",
     "operatingSystem": "Web Browser",
     "description": "AI-powered image generation platform for creating professional images from text descriptions",
-    "url": "https://fluxkontext.space",
+    "url": "https://remove-watermark-ai.com",
     "author": {
       "@type": "Organization",
-      "name": "Flux Kontext"
+      "name": "Remove Watermark AI"
     },
     "offers": {
       "@type": "Offer",

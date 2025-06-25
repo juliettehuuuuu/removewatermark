@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useSession, signOut } from "next-auth/react"
+import { useAuthContext } from "@/components/providers/AuthProvider"
 import { Button } from "@/components/ui/button"
 import { ChevronDown, User, LogOut, Code, BookOpen } from "lucide-react"
 // 导入文案系统
@@ -11,7 +11,7 @@ import { common } from "@/lib/content"
 
 export function Navigation() {
   const pathname = usePathname()
-  const { data: session, status } = useSession()
+  const { user, loading, signOut } = useAuthContext()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isResourcesMenuOpen, setIsResourcesMenuOpen] = useState(false)
@@ -46,7 +46,15 @@ export function Navigation() {
   ]
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: "/" })
+    console.log('🔍 开始登出...')
+    const result = await signOut()
+    if (result.success) {
+      console.log('✅ 登出成功')
+      // 可以手动跳转到首页
+      window.location.href = '/'
+    } else {
+      console.error('❌ 登出失败:', result.error)
+    }
   }
 
   return (
@@ -55,7 +63,7 @@ export function Navigation() {
         {/* 左侧：Logo */}
         <div className="flex-shrink-0">
           <Link href="/" className="text-xl font-bold text-primary">
-            Flux Kontext
+            Remove Watermark AI
           </Link>
         </div>
         
@@ -120,27 +128,19 @@ export function Navigation() {
 
         {/* 右侧：桌面端用户状态和按钮 */}
         <div className="hidden md:flex items-center space-x-4 flex-shrink-0">
-          {status === "loading" ? (
+          {loading ? (
             <div className="w-8 h-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          ) : session ? (
+          ) : user ? (
             // 已登录状态
             <div className="relative user-dropdown">
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                 className="flex items-center space-x-2 p-2 rounded-lg hover:bg-accent transition-colors"
               >
-                {session.user?.image ? (
-                  <img 
-                    src={session.user.image} 
-                    alt={session.user.name || "User"} 
-                    className="w-8 h-8 rounded-full"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User className="w-4 h-4 text-primary" />
-                  </div>
-                )}
-                <span className="text-sm font-medium">{session.user?.name || session.user?.email}</span>
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="w-4 h-4 text-primary" />
+                </div>
+                <span className="text-sm font-medium">{user.user_metadata?.name || user.email}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`} />
               </button>
               
@@ -197,9 +197,9 @@ export function Navigation() {
             aria-label="Toggle mobile menu"
           >
             <div className="w-6 h-6 flex flex-col justify-center items-center">
-              <span className={`block w-5 h-0.5 bg-foreground transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1' : ''}`} />
-              <span className={`block w-5 h-0.5 bg-foreground transition-all duration-300 mt-1 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
-              <span className={`block w-5 h-0.5 bg-foreground transition-all duration-300 mt-1 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1' : ''}`} />
+              <span className={`block w-5 h-5 bg-foreground transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-1' : ''}`} />
+              <span className={`block w-5 h-0.5 bg-foreground transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : 'my-0.5'}`} />
+              <span className={`block w-5 h-0.5 bg-foreground transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-1' : ''}`} />
             </div>
           </button>
         </div>
@@ -207,134 +207,102 @@ export function Navigation() {
 
       {/* 移动端菜单 */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-background border-t border-border">
-          <div className="container mx-auto px-4 py-4 space-y-4">
-            {/* 移动端导航链接 */}
-            <nav className="space-y-2">
-              {navLinks.map((link) => (
-                <div key={link.href}>
-                  {link.hasDropdown ? (
-                    // 移动端Resources菜单
-                    <div>
-                      <button
-                        onClick={() => setIsResourcesMenuOpen(!isResourcesMenuOpen)}
-                        className={`w-full text-left py-2 px-4 rounded-lg transition-colors flex items-center justify-between ${
-                          pathname.startsWith('/resources') 
-                            ? 'bg-primary/10 text-primary' 
-                            : 'hover:bg-accent'
-                        }`}
-                      >
-                        <span>{link.label}</span>
-                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isResourcesMenuOpen ? 'rotate-180' : ''}`} />
-                      </button>
-                      
-                      {/* 移动端Resources子菜单 */}
-                      {isResourcesMenuOpen && (
-                        <div className="ml-4 mt-2 space-y-1">
-                          {link.subItems?.map((subItem) => (
-                            <Link
-                              key={subItem.href}
-                              href={subItem.href}
-                              className="flex items-center space-x-3 py-2 px-4 text-sm transition-colors hover:bg-accent rounded-lg"
-                              onClick={() => {
-                                setIsResourcesMenuOpen(false)
-                                setIsMobileMenuOpen(false)
-                              }}
-                            >
-                              <subItem.icon className="w-4 h-4 text-primary" />
-                              <span>{subItem.label}</span>
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    // 移动端普通导航链接
-                    <Link
-                      href={link.href}
-                      className={`block py-2 px-4 rounded-lg transition-colors ${
-                        pathname === link.href 
-                          ? 'bg-primary/10 text-primary' 
-                          : 'hover:bg-accent'
+        <div className="md:hidden bg-background border-b border-border">
+          <nav className="container mx-auto px-4 py-4 space-y-4">
+            {navLinks.map((link) => (
+              <div key={link.href}>
+                {link.hasDropdown ? (
+                  // Resources菜单项
+                  <div>
+                    <div
+                      className={`block py-2 text-sm font-medium ${
+                        pathname.startsWith('/resources') ? 'text-primary' : 'text-foreground'
                       }`}
-                      onClick={() => setIsMobileMenuOpen(false)}
                     >
                       {link.label}
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </nav>
-
-            {/* 移动端用户状态 */}
-            <hr className="border-border" />
-            {status === "loading" ? (
-              <div className="flex justify-center">
-                <div className="w-6 h-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              </div>
-            ) : session ? (
-              // 移动端已登录状态
-              <div className="space-y-2">
-                <div className="flex items-center space-x-3 p-3 bg-accent/50 rounded-lg">
-                  {session.user?.image ? (
-                    <img 
-                      src={session.user.image} 
-                      alt={session.user.name || "User"} 
-                      className="w-10 h-10 rounded-full"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="w-5 h-5 text-primary" />
                     </div>
-                  )}
-                  <div className="flex-1">
-                    <div className="font-medium">{session.user?.name || session.user?.email}</div>
-                    <div className="text-sm text-muted-foreground">已登录</div>
+                    <div className="ml-4 space-y-2">
+                      {link.subItems?.map((subItem) => (
+                        <Link
+                          key={subItem.href}
+                          href={subItem.href}
+                          className="flex items-center space-x-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <subItem.icon className="w-4 h-4" />
+                          <span>{subItem.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    href={link.href}
+                    className={`block py-2 text-sm font-medium transition-colors ${
+                      pathname === link.href ? 'text-primary' : 'text-foreground hover:text-primary'
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                )}
+              </div>
+            ))}
+            
+            {/* 移动端用户状态 */}
+            <div className="pt-4 border-t border-border">
+              {loading ? (
+                <div className="flex items-center space-x-2">
+                  <div className="w-6 h-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <span className="text-sm text-muted-foreground">Loading...</span>
+                </div>
+              ) : user ? (
+                // 已登录状态
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="text-sm font-medium">{user.user_metadata?.name || user.email}</span>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Link
+                      href="/dashboard"
+                      className="block py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {common.navigation.dashboard}
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleSignOut()
+                        setIsMobileMenuOpen(false)
+                      }}
+                      className="flex items-center space-x-2 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>{common.buttons.signOut}</span>
+                    </button>
                   </div>
                 </div>
-                
-                <Link
-                  href="/dashboard"
-                  className="block w-full text-left py-2 px-4 rounded-lg transition-colors hover:bg-accent"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {common.navigation.dashboard}
-                </Link>
-                
-                <button
-                  onClick={() => {
-                    handleSignOut()
-                    setIsMobileMenuOpen(false)
-                  }}
-                  className="w-full text-left py-2 px-4 rounded-lg transition-colors hover:bg-accent flex items-center space-x-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>{common.buttons.signOut}</span>
-                </button>
-              </div>
-            ) : (
-              // 移动端未登录状态
-              <div className="space-y-2">
-                <Link href="/auth/signin" className="block">
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {common.navigation.login}
-                  </Button>
-                </Link>
-                <Link href="/auth/signup" className="block">
-                  <Button 
-                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {common.buttons.signUp}
-                  </Button>
-                </Link>
-              </div>
-            )}
-          </div>
+              ) : (
+                // 未登录状态
+                <div className="space-y-3">
+                  <Link href="/auth/signin" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button variant="ghost" size="sm" className="w-full justify-start">
+                      {common.navigation.login}
+                    </Button>
+                  </Link>
+                  <Link href="/auth/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Button size="sm" className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
+                      {common.buttons.signUp}
+                    </Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </nav>
         </div>
       )}
     </header>
