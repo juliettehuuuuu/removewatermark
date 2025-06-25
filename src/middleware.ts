@@ -145,11 +145,22 @@ export async function middleware(request: NextRequest) {
     const protectedPaths = ['/tool']
     const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path))
     
+    // 认证相关的页面
+    const authPaths = ['/auth/signin', '/auth/signup']
+    const isAuthPath = authPaths.some(path => pathname.startsWith(path))
+    
     if (isProtectedPath && !user) {
       console.log('🔐 未认证用户访问受保护页面，重定向到登录')
       const loginUrl = new URL('/auth/signin', request.url)
       loginUrl.searchParams.set('redirectTo', pathname)
       return NextResponse.redirect(loginUrl)
+    }
+    
+    // 如果用户已经登录但访问登录/注册页面，重定向到tool页面
+    if (isAuthPath && user) {
+      console.log('🔐 已登录用户访问认证页面，重定向到tool页面')
+      const redirectTo = request.nextUrl.searchParams.get('redirectTo') || '/tool'
+      return NextResponse.redirect(new URL(redirectTo, request.url))
     }
 
     console.log('🔐 认证检查完成:', user ? `用户: ${user.email}` : '未登录用户')

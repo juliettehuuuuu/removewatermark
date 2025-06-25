@@ -11,7 +11,7 @@ export function SignInContent() {
   const [error, setError] = useState("")
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { signIn, loading } = useAuthContext()
+  const { signIn, loading, user, isAuthenticated } = useAuthContext()
 
   // 检查URL中的错误参数
   useEffect(() => {
@@ -20,6 +20,15 @@ export function SignInContent() {
       setError("Login failed. Please try again.")
     }
   }, [searchParams])
+
+  // 如果用户已经登录，自动重定向
+  useEffect(() => {
+    if (isAuthenticated && user && !loading) {
+      console.log('✅ 用户已登录，自动重定向到tool页面')
+      const callbackUrl = searchParams.get('redirectTo') || searchParams.get('callbackUrl') || '/tool'
+      router.push(callbackUrl)
+    }
+  }, [isAuthenticated, user, loading, router, searchParams])
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -13,7 +13,16 @@ export function SignUpContent() {
   const [success, setSuccess] = useState("")
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { signUp, signIn, loading } = useAuthContext()
+  const { signUp, signIn, loading, user, isAuthenticated } = useAuthContext()
+
+  // 如果用户已经登录，自动重定向
+  useEffect(() => {
+    if (isAuthenticated && user && !loading) {
+      console.log('✅ 用户已登录，自动重定向到tool页面')
+      const callbackUrl = searchParams.get('redirectTo') || searchParams.get('callbackUrl') || '/tool'
+      router.push(callbackUrl)
+    }
+  }, [isAuthenticated, user, loading, router, searchParams])
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
