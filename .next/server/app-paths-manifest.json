@@ -1,5 +1,14 @@
 {
-  "/tool/page": "app/tool/page.js",
+  "/api/enhance-image/route": "app/api/enhance-image/route.js",
+  "/api/auth/confirm/route": "app/api/auth/confirm/route.js",
+  "/api/auth/register/route": "app/api/auth/register/route.js",
+  "/api/remove-watermark/route": "app/api/remove-watermark/route.js",
+  "/api/route": "app/api/route.js",
+  "/api/send-feedback/route": "app/api/send-feedback/route.js",
+  "/api/tune-image/route": "app/api/tune-image/route.js",
   "/page": "app/page.js",
-  "/auth/signin/page": "app/auth/signin/page.js"
+  "/tool/page": "app/tool/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/auth/signin/page": "app/auth/signin/page.js",
+  "/auth/signup/page": "app/auth/signup/page.js"
 }

@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, Suspense } from 'react'
 import { ImageUploader } from '@/components/ImageUploader'
 import { ResultPreview } from '@/components/ResultPreview'
 import { ToolButtons } from '@/components/ToolButtons'
@@ -9,8 +9,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Sparkles, Image as ImageIcon, Upload, LogOut, CheckCircle } from 'lucide-react'
 import { AuthDebug } from '@/components/AuthDebug'
 
-// 工具页主页面
-export default function ToolPage() {
+// 内部组件来处理搜索参数
+function ToolPageContent() {
   const [originalFile, setOriginalFile] = useState<File | null>(null)
   const [resultUrl, setResultUrl] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -329,4 +329,20 @@ export default function ToolPage() {
       </main>
     </div>
   )
-} 
+}
+
+// 主导出组件，用Suspense包装内容组件
+export default function ToolPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="w-8 h-8 mx-auto animate-spin rounded-full border-2 border-blue-600 border-t-transparent"></div>
+          <p className="mt-4 text-slate-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ToolPageContent />
+    </Suspense>
+  )
+}
