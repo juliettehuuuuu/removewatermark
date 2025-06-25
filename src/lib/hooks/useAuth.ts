@@ -25,8 +25,30 @@ export function useAuth() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔍 认证状态变化:', event, session?.user?.email)
+        
+        // 处理不同的认证事件
+        switch (event) {
+          case 'SIGNED_IN':
+            console.log('✅ 用户已登录')
+            break
+          case 'SIGNED_OUT':
+            console.log('👋 用户已登出')
+            break
+          case 'TOKEN_REFRESHED':
+            console.log('🔄 令牌已刷新')
+            break
+          case 'USER_UPDATED':
+            console.log('👤 用户信息已更新')
+            break
+        }
+        
         setUser(session?.user ?? null)
         setLoading(false)
+        
+        // 如果是邮件确认成功，刷新页面以同步状态
+        if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at) {
+          console.log('📧 邮件确认完成，同步认证状态')
+        }
       }
     )
 
@@ -72,7 +94,9 @@ export function useAuth() {
         options: {
           data: { 
             name: name || email.split('@')[0] 
-          }
+          },
+          // 设置邮件确认重定向URL
+          emailRedirectTo: `${window.location.origin}/api/auth/confirm`
         }
       })
 

@@ -5,8 +5,8 @@ import { ResultPreview } from '@/components/ResultPreview'
 import { ToolButtons } from '@/components/ToolButtons'
 import { DownloadButton } from '@/components/DownloadButton'
 import { useAuthContext } from '@/components/providers/AuthProvider'
-import { useRouter } from 'next/navigation'
-import { Sparkles, Image as ImageIcon, Upload, LogOut } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Sparkles, Image as ImageIcon, Upload, LogOut, CheckCircle } from 'lucide-react'
 
 // 工具页主页面
 export default function ToolPage() {
@@ -16,7 +16,9 @@ export default function ToolPage() {
   const [error, setError] = useState<string | null>(null)
   const { user, loading, signOut } = useAuthContext()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [remaining, setRemaining] = useState<number | null>(null)
+  const [showConfirmSuccess, setShowConfirmSuccess] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
   const [feedback, setFeedback] = useState("")
   const [feedbackStatus, setFeedbackStatus] = useState<string | null>(null)
@@ -35,6 +37,22 @@ export default function ToolPage() {
     // 移除自动重定向逻辑，让未登录用户也能浏览页面
     // 只在用户尝试使用功能时才提示登录
   }, [loading, user, router])
+
+  // 检查是否有邮件确认成功的参数
+  useEffect(() => {
+    const confirmed = searchParams.get('confirmed')
+    if (confirmed === 'true') {
+      setShowConfirmSuccess(true)
+      // 3秒后自动隐藏提示
+      setTimeout(() => {
+        setShowConfirmSuccess(false)
+        // 清除URL参数
+        const newUrl = new URL(window.location.href)
+        newUrl.searchParams.delete('confirmed')
+        window.history.replaceState({}, '', newUrl.toString())
+      }, 3000)
+    }
+  }, [searchParams])
 
   // 处理退出登录
   const handleSignOut = async () => {
@@ -200,6 +218,19 @@ export default function ToolPage() {
           </div>
         </div>
       </header>
+
+      {/* 邮件确认成功提示 */}
+      {showConfirmSuccess && (
+        <div className="bg-green-100 border border-green-300 px-4 py-3 mx-4 mt-4 rounded-lg">
+          <div className="flex items-center space-x-3">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <div>
+              <p className="text-green-800 font-medium">Email confirmed successfully! 🎉</p>
+              <p className="text-green-700 text-sm">Your account is now verified and ready to use all features.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="flex-grow flex flex-col justify-center py-6 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-7xl mx-auto">
