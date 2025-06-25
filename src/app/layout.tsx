@@ -19,17 +19,18 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Remove Watermark AI - AI Image Watermark Remover | Professional AI Tool",
+    default: "AI Watermark Remover - Restore Your Images to Perfection",
     template: "%s | Remove Watermark AI"
   },
-  description: "Professional AI image watermark remover powered by Remove Watermark AI. Remove watermarks from images with advanced AI technology. Free watermark removal tool.",
+  description: "Transform unusable watermarked images into professional-quality assets. Our AI-powered platform removes watermarks and enhances image quality, dramatically improving your workflow efficiency.",
   keywords: [
-    "remove watermark ai",
+    "watermark removal",
+    "image restoration", 
+    "productivity tools",
+    "image enhancement",
+    "workflow efficiency",
     "ai watermark remover",
-    "image watermark removal",
-    "ai image tool",
     "remove watermark",
-    "ai art",
     "ai image editing"
   ],
   authors: [{ name: "Remove Watermark AI Team" }],

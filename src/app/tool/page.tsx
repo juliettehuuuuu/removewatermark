@@ -7,6 +7,7 @@ import { DownloadButton } from '@/components/DownloadButton'
 import { useAuthContext } from '@/components/providers/AuthProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Sparkles, Image as ImageIcon, Upload, LogOut, CheckCircle } from 'lucide-react'
+import { AuthDebug } from '@/components/AuthDebug'
 
 // 工具页主页面
 export default function ToolPage() {
@@ -183,6 +184,7 @@ export default function ToolPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 text-slate-800">
+      <AuthDebug />
       <header className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">

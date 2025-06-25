@@ -1,19 +1,20 @@
-import { Metadata } from 'next'
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { StructuredData } from '@/components/StructuredData'
-
-export const metadata: Metadata = {
-  title: 'AI Watermark Remover - Restore Your Images to Perfection',
-  description: 'Transform unusable watermarked images into professional-quality assets. Our AI-powered platform removes watermarks and enhances image quality, dramatically improving your workflow efficiency.',
-  keywords: ['watermark removal', 'image restoration', 'productivity tools', 'image enhancement', 'workflow efficiency'],
-}
+import { Navigation } from '@/components/Navigation'
+import { useAuthContext } from '@/components/providers/AuthProvider'
+import { AuthDebug } from '@/components/AuthDebug'
 
 export default function HomePage() {
+  const { user, loading } = useAuthContext()
   return (
     <>
       <StructuredData />
+      <Navigation />
+      <AuthDebug />
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
         {/* Hero Section */}
         <section className="relative pt-20 md:pt-32 pb-24 px-4 overflow-hidden">
@@ -49,14 +50,21 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
               <Link href="/tool">
                 <Button size="lg" className="text-lg px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                  Start Processing Now
+                  {user ? 'Continue Processing' : 'Start Processing Now'}
                 </Button>
               </Link>
-              <Link href="/auth/signin">
-                <Button variant="outline" size="lg" className="text-lg px-10 py-4 border-2 border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300">
-                  Sign In
-                </Button>
-              </Link>
+              {!loading && !user && (
+                <Link href="/auth/signin">
+                  <Button variant="outline" size="lg" className="text-lg px-10 py-4 border-2 border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300">
+                    Sign In
+                  </Button>
+                </Link>
+              )}
+              {user && (
+                <div className="text-sm text-green-600 bg-green-50 px-4 py-2 rounded-lg">
+                  ✅ Logged in as {user.user_metadata?.name || user.email}
+                </div>
+              )}
             </div>
             
             {/* Trust indicators */}
@@ -214,11 +222,20 @@ export default function HomePage() {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Link href="/auth/signup">
-                <Button size="lg" className="text-lg px-12 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-0">
-                  Start Free Trial
-                </Button>
-              </Link>
+              {!loading && !user && (
+                <Link href="/auth/signup">
+                  <Button size="lg" className="text-lg px-12 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-0">
+                    Start Free Trial
+                  </Button>
+                </Link>
+              )}
+              {user && (
+                <Link href="/tool">
+                  <Button size="lg" className="text-lg px-12 py-4 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105 border-0">
+                    Use AI Tools Now
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </section>
