@@ -16,6 +16,7 @@
     "setup": "node scripts/quick-setup.js",
     "check": "node scripts/check-config.js",
     "check:supabase": "node scripts/check-supabase.js",
+    "verify:env": "node scripts/verify-env.js",
     "perf": "node scripts/performance-check.js",
     "analyze": "npm run build && npx @next/bundle-analyzer",
     "setup:env": "cp env.example .env.local && node scripts/check-config.js",
