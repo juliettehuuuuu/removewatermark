@@ -1,8 +1,5 @@
 {
-  "/api/send-feedback/route": "app/api/send-feedback/route.js",
-  "/api/remove-watermark/route": "app/api/remove-watermark/route.js",
   "/tool/page": "app/tool/page.js",
   "/auth/signup/page": "app/auth/signup/page.js",
-  "/auth/signin/page": "app/auth/signin/page.js",
   "/page": "app/page.js"
 }

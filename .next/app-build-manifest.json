@@ -21,25 +21,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/auth/signup/page.js"
     ],
-    "/auth/signin/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/auth/signin/page.js"
-    ],
     "/tool/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/tool/page.js"
-    ],
-    "/api/remove-watermark/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/remove-watermark/route.js"
-    ],
-    "/api/send-feedback/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/send-feedback/route.js"
     ]
   }
 }
