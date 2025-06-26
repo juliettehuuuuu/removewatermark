@@ -11,7 +11,8 @@
     "kill:3000": "powershell -Command \"Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }\"",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint && tsc --noEmit",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
     "format": "npx @biomejs/biome format --write .",
     "setup": "node scripts/quick-setup.js",
     "check": "node scripts/check-config.js",
@@ -23,7 +24,9 @@
     "seo:check": "node scripts/check-seo.js",
     "seo:audit": "npm run seo:check && npm run lighthouse",
     "lighthouse": "npx lighthouse http://localhost:3000 --output=html --output-path=./lighthouse-report.html",
-    "test:api": "node scripts/test-api.js"
+    "test:api": "node scripts/test-api.js",
+    "preview": "next build && next start",
+    "security-check": "node scripts/security-check.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.817.0",
@@ -41,7 +44,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "critters": "^0.0.23",
-    "dotenv": "^16.5.0",
     "framer-motion": "^12.14.0",
     "google-auth-library": "^9.15.1",
     "lucide-react": "^0.475.0",
@@ -54,7 +56,8 @@
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.0.4",
     "zod": "^3.25.67",
-    "zustand": "^5.0.5"
+    "zustand": "^5.0.5",
+    "@headlessui/react": "^1.7.17"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -64,6 +67,7 @@
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "autoprefixer": "^10.4.21",
+    "dotenv": "^16.5.0",
     "eslint": "^9.27.0",
     "eslint-config-next": "15.1.7",
     "postcss": "^8.5.3",

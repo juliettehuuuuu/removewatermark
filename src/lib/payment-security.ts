@@ -537,4 +537,56 @@ export async function performSecurityChecks(request: PriceValidationRequest): Pr
       warnings: []
     }
   }
+}
+
+/**
+ * Gets the payment validation secret from environment variables.
+ * @returns {string | null} The validation secret, or null if not set.
+ */
+function getPaymentValidationSecret(): string | null {
+  const secret = process.env.PAYMENT_VALIDATION_SECRET;
+  if (!secret || secret.startsWith('YOUR_')) {
+    // 密钥未设置，这是允许的，但会禁用相关功能
+    return null;
+  }
+  return secret;
+}
+
+/**
+ * @returns {boolean} True if the hash is valid, false otherwise.
+ */
+export function validatePaymentHash(data: Record<string, any>): boolean {
+  if (!data.hash) {
+    return false;
+  }
+
+  delete data.hash;
+
+  const secret = getPaymentValidationSecret();
+  if (!secret) {
+    console.warn("⚠️  [Security] PAYMENT_VALIDATION_SECRET is not set. Payment hash validation is disabled.");
+    return false; // 如果没有密钥，所有验证都失败
+  }
+
+  const expectedHash = crypto.createHmac('sha256', secret).update(JSON.stringify(data)).digest('hex');
+
+  if (expectedHash !== data.hash) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * @param data The data to be hashed.
+ * @returns {string} The generated hash.
+ */
+export function generatePaymentHash(data: Record<string, any>): string {
+  const secret = getPaymentValidationSecret();
+  if (!secret) {
+    console.warn("⚠️  [Security] PAYMENT_VALIDATION_SECRET is not set. Cannot generate payment hash.");
+    // 在无法生成有效哈希时返回一个固定的、明显无效的值
+    return 'validation_disabled';
+  }
+  return crypto.createHmac('sha256', secret).update(JSON.stringify(data)).digest('hex');
 } 

@@ -7,12 +7,12 @@ const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN
 const models = {
   remove: {
     // flux-kontext-apps/text-removal
-    version: "e28636410bff2b083e38f4e856a5b2be171c8bb6636f527b1a9e84dff29d1c54",
+    version: process.env.NEXT_PUBLIC_REPLICATE_REMOVE_MODEL_VERSION || "e28636410bff2b083e38f4e856a5b2be171c8bb6636f527b1a9e84dff29d1c54",
     modelInput: (base64: string) => ({ input_image: `data:image/png;base64,${base64}` })
   },
   enhance: {
     // flux-kontext-apps/restore-image
-    version: "85ae46551612b8f778348846b6ce1ce1b340e384fe2062399c0c412be29e107d",
+    version: process.env.NEXT_PUBLIC_REPLICATE_ENHANCE_MODEL_VERSION || "85ae46551612b8f778348846b6ce1ce1b340e384fe2062399c0c412be29e107d",
     modelInput: (base64: string) => ({ input_image: `data:image/png;base64,${base64}` })
   },
   // tune: ...（如有微调模型可补充）
